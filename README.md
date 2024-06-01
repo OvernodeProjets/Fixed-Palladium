@@ -1,9 +1,7 @@
-![Palladium](https://cdn.discordapp.com/attachments/1085575983274401912/1086714457843056762/Palladium.png)
-![Palladium](https://cdn.discordapp.com/attachments/1056121952051396705/1079723556109303890/image-45.png)
 
 <hr>
 
-# Palladium
+# Fixed-Palladium
 
 All features:
 - Resource Management (Use it to create servers, gift them, etc)
@@ -17,19 +15,19 @@ All features:
 
 <br>
 
-| :exclamation:  This is an extremely early version of Palladium and doesn't have all of features we want to add yet                                   |
+| :exclamation:  This is an extremely early version of Fixed-Palladium and doesn't have all of features we want to add yet                                   |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 <br>
 
-| :warning:  Palladium currently doesn't encrypt user passwords. This will be fixed in 1.0.1, but for now, just don't leak your database.sqlite.       |
+| :warning:  Fixed-Palladium currently doesn't encrypt user passwords. This will be fixed in 1.0.1, but for now, just don't leak your database.sqlite.       |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 <hr>
 
 # Install Guide
 
-Warning: You need Pterodactyl already set up on a domain for Palladium to work
+Warning: You need Pterodactyl already set up on a domain for Fixed-Palladium to work
 1. Upload the file above onto a Pterodactyl NodeJS server [Download the egg from Parkervcp's GitHub Repository](https://github.com/parkervcp/eggs/blob/master/generic/nodejs/egg-node-js-generic.json)
 2. Unarchive the file and set the server to use NodeJS 16
 3. Configure `.env`, `/resources/configuration/locations.ejs` and `/storage/eggs.json`
@@ -37,8 +35,8 @@ Warning: You need Pterodactyl already set up on a domain for Palladium to work
 5. Login to your DNS manager, point the domain you want your dashboard to be hosted on to your VPS IP address. (Example: dashboard.domain.com 192.168.0.1)
 6. Run `apt install nginx && apt install certbot` on the vps
 7. Run `ufw allow 80` and `ufw allow 443` on the vps
-8. Run `certbot certonly -d <Your Palladium Domain>` then do 1 and put your email
-9. Run `nano /etc/nginx/sites-enabled/palladium.conf`
+8. Run `certbot certonly -d <Your domain>` then do 1 and put your email
+9. Run `nano /etc/nginx/sites-enabled/fixed-palladium.conf`
 10. Paste the configuration at the bottom of this and replace with the IP of the pterodactyl server including the port and with the domain you want your dashboard to be hosted on.
 11. Run `systemctl restart nginx` and try open your domain.
 
