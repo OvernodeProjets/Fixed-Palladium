@@ -112,6 +112,30 @@
                 };
               </script>
 
+              <div class="hidden sm:block" aria-hidden="true">
+                <div class="py-5">
+                  <div class="border-t border-gray-700/75"></div>
+                </div>
+              </div>
+
+              <br />
+              
+              <h2 class="text-white font-bold">Scan Egg</h2>
+              <p class="text-gray-400">Scan eggs from API</p>
+
+              <br />
+
+              <a onclick="scanEggs()" type="button"
+                  class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
+                  Scan Eggs
+              </a>
+
+              <script>
+                  async function scanEggs() {
+                    document.location.href = `/scaneggs`;
+                  };
+              </script>
+
               <br /><br />
             </div>
           </div>

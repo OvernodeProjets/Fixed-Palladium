@@ -109,7 +109,7 @@ router.get('/callback/auth0', passport.authenticate('auth0', {
 
 // Reset password of the user via Pterodactyl API
 router.get('/reset', async (req, res) => {
-    if (!req.user) return res.redirect('/')
+    if (!req.user) return res.redirect('/');
     try {
       // Generate new password
       let password = randomstring.generate(process.env.PASSWORD_LENGTH);

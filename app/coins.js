@@ -20,7 +20,7 @@ let earners = {}
 router.ws('/afkws', async (ws, req) => {
     if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return ws.close();
     if(earners[req.user.emails[0].value] == true) return ws.close();
-    const timeConf = process.env.AFK_TIME
+    const timeConf = process.env.AFK_TIME;
     let time = timeConf;
     earners[req.user.emails[0].value] = true;
     let aba = setInterval(async () => {
@@ -28,11 +28,11 @@ router.ws('/afkws', async (ws, req) => {
             time--;
             if(time <= 0) {
                 time = timeConf;
-                ws.send(JSON.stringify({"type":"coin"}))
+                ws.send(JSON.stringify({"type":"coin"}));
                 let r = parseInt((await db.get(`coins-${req.user.emails[0].value}`))) + 1;
-               await db.set(`coins-${req.user.emails[0].value}`,r)
+               await db.set(`coins-${req.user.emails[0].value}`,r);
             }
-            ws.send(JSON.stringify({"type":"count","amount":time}))
+            ws.send(JSON.stringify({"type":"count","amount":time}));
         }
     }, 1000)
     ws.on('close', async () => {
@@ -48,7 +48,7 @@ router.get('/afk', ensureAuthenticated, async (req, res) => {
         coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
         req: req, // Request (queries)
         admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
-        name: process.env.APP_NAME, // App name
+        name: process.env.APP_NAME // App name
     });
 });
 
@@ -61,7 +61,7 @@ router.get('/store', ensureAuthenticated, async (req, res) => {
         coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
         req: req, // Request (queries)
         admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
-        name: process.env.APP_NAME, // App name
+        name: process.env.APP_NAME // App name
     });
 });
 
@@ -79,22 +79,25 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 
     // Resource amounts & costs
     if (req.query.resource == 'cpu') {
-        let resourceAmount = 100 * req.query.amount
-        let resourceCost = process.env.CPU_COST * req.query.amount
+        let resourceAmount = 100 * req.query.amount;
+        let resourceCost = process.env.CPU_COST * req.query.amount;
+
         if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
         await db.set(`cpu-${req.user.emails[0].value}`, parseInt(currentResources) + parseInt(resourceAmount));
         await db.set(`coins-${req.user.emails[0].value}`, parseInt(coins) - parseInt(resourceCost));
         return res.redirect('/store?success=BOUGHTRESOURCE');
     } else if (req.query.resource == 'ram') {
-        let resourceAmount = 1024 * req.query.amount
-        let resourceCost = process.env.RAM_COST * req.query.amount
+        let resourceAmount = 1024 * req.query.amount;
+        let resourceCost = process.env.RAM_COST * req.query.amount;
+
         if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
         await db.set(`ram-${req.user.emails[0].value}`, parseInt(currentResources) + parseInt(resourceAmount));
         await db.set(`coins-${req.user.emails[0].value}`, parseInt(coins) - parseInt(resourceCost));
         return res.redirect('/store?success=BOUGHTRESOURCE');
     } else if (req.query.resource == 'disk') {
-        let resourceAmount = 5120 * req.query.amount
-        let resourceCost = process.env.DISK_COST * req.query.amount
+        let resourceAmount = 5120 * req.query.amount;
+        let resourceCost = process.env.DISK_COST * req.query.amount;
+
         if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
         await db.set(`disk-${req.user.emails[0].value}`, parseInt(currentResources) + parseInt(resourceAmount));
         await db.set(`coins-${req.user.emails[0].value}`, parseInt(coins) - parseInt(resourceCost));

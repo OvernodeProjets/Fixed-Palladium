@@ -29,45 +29,53 @@ async function checkPassword(email) {
 // Resources
 
 // Figure out how what the user's total resource usage is right now
-async function calculateResource(email, resource) {
-    try {
-      // Get user's servers
-      const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
-        headers: {
-          'Authorization': `Bearer ${pterodactyl[0].key}`,
-          'Accept': 'Application/vnd.pterodactyl.v1+json'
-        }
-      });
-  
-      // Sum total resources in use
-      let totalResources = 0;
-      response.data.data[0].attributes.relationships.servers.data.forEach(server => {
-        totalResources += server.attributes.limits[resource];
-      });
-  
-      return totalResources;
-    } catch (error) {
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', function (err) {
-        if (err) console.log(`Failed to save log: ${err}`);
-      });
-    }
-  }
+async function calculateResource(email, resource, isFeatureLimit = false) {
+  try {
+    // Get user's servers
+    const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
+      headers: {
+        'Authorization': `Bearer ${pterodactyl[0].key}`,
+        'Accept': 'Application/vnd.pterodactyl.v1+json'
+      }
+    });
 
-  // Existing resources (the ones in use on servers)
-  const existingResources = async (email) => {
-    return {
-      "cpu": await calculateResource(email, 'cpu'),
-      "ram": await calculateResource(email, 'memory'),
-      "disk": await calculateResource(email, 'disk')
-    };
+    // Sum total resources in use
+    let totalResources = 0;
+    response.data.data[0].attributes.relationships.servers.data.forEach(server => {
+      if (isFeatureLimit) {
+        totalResources += server.attributes.feature_limits[resource];
+      } else {
+        totalResources += server.attributes.limits[resource];
+      }
+    });
+
+    return totalResources;
+  } catch (error) {
+    fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', function (err) {
+      if (err) console.log(`Failed to save log: ${err}`);
+    });
+  }
+}
+
+// Existing resources (the ones in use on servers)
+const existingResources = async (email) => {
+  return {
+    "cpu": await calculateResource(email, 'cpu'),
+    "ram": await calculateResource(email, 'memory'),
+    "disk": await calculateResource(email, 'disk'),
+    "database": await calculateResource(email, 'databases', true),
+    "backup": await calculateResource(email, 'backups', true)
   };
+};
   
   // Max resources (the ones the user has purchased or been given)
   const maxResources = async (email) => {
     return {
       "cpu": await db.get(`cpu-${email}`),
       "ram": await db.get(`ram-${email}`),
-      "disk": await db.get(`disk-${email}`)
+      "disk": await db.get(`disk-${email}`),
+      "database": await db.get(`database-${email}`),
+      "backup": await db.get(`backup-${email}`)
     };
   };
 
@@ -85,6 +93,14 @@ async function ensureResourcesExist(email) {
 
     if (!resources.disk || resources.disk == 0) {
         await db.set(`disk-${email}`, process.env.DEFAULT_DISK);
+    }
+
+    if (!resources.database || resources.database == 0) {
+      await db.set(`database-${email}`, process.env.SERVER_DEFAULT_DATABASES);
+    }
+
+    if (!resources.backup || resources.backup == 0) {
+      await db.set(`backup-${email}`, process.env.SERVER_DEFAULT_BACKUPS);
     }
 
     // Might as well add the coins too instead of having 2 separate functions
@@ -154,6 +170,6 @@ router.get('/panel', (req, res) => {
 
 // Assets
 
-router.use('/public', express.static('public'))
+router.use('/public', express.static('public'));
 
 module.exports = router;

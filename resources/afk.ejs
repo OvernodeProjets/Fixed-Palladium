@@ -10,7 +10,7 @@
                   const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkws`);
                   ws.onopen = () => {
                     console.log("[WS] Connected to websocket.");
-                    document.getElementById("coinCountdown").innerHTML = "60 seconds";
+                    document.getElementById("coinCountdown").innerHTML = "Connected to websocket.";
                   };
                   ws.onmessage = (msg) => {
                     let z = JSON.parse(msg.data);

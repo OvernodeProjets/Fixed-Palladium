@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 
 const Keyv = require('keyv');
 const db = new Keyv(process.env.KEYV_URI);
@@ -22,8 +23,24 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
             coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
             req: req, // Request (queries)
             admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
-            name: process.env.APP_NAME, // App name
+            name: process.env.APP_NAME // App name
         });
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+// doesn't work for now
+router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
+    if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return res.redirect('/login/auth0');
+    if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
+            const response = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/nests/1/eggs?include=nest,servers`, {
+                headers: {
+                    'Accept': 'application/json',
+                    Authorization: `Bearer ${process.env.PTERODACTYL_KEY}`
+                }
+            });
+            console.log(response.data.data);
+        res.redirect('/admin?success=COMPLETE');
     } else {
         res.redirect('/dashboard');
     }
@@ -34,7 +51,7 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
     if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt((await db.get(`coins-${req.query.email}`))) + parseInt(req.query.amount);
-        await db.set(`coins-${req.query.email}`, amount)
+        await db.set(`coins-${req.query.email}`, amount);
         res.redirect('/admin?success=COMPLETE');
     } else {
         res.redirect('/dashboard');
@@ -46,7 +63,7 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
     if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt(req.query.amount);
-        await db.set(`coins-${req.query.email}`, amount)
+        await db.set(`coins-${req.query.email}`, amount);
         res.redirect('/admin?success=COMPLETE');
     } else {
         res.redirect('/dashboard');

@@ -1,7 +1,7 @@
 [
     {
-        "id": 5,
-        "name": "Uranium",
+        "id": 1,
+        "name": "Minecraft Java Edition | Paper",
         "description": "Minecraft Java Edition",
         "docker_image": "ghcr.io/pterodactyl/yolks:java_17",
         "startup": "java -Xms128M -XX:MaxRAMPercentage=85.0 --add-modules=jdk.incubator.vector -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -Dterminal.jline=false -Dterminal.ansi=true -jar {{SERVER_JARFILE}}",

@@ -34,7 +34,7 @@ Warning: You need Pterodactyl already set up on a domain for Fixed-Palladium to 
 2. Unarchive the file and set the server to use NodeJS 16
 3. Configure `.env`, `/resources/configuration/locations.ejs` and `/storage/eggs.json`
 4. Run `npm i`
-5. Start the server with `npm start` or `node index.js`
+5. Start the server with `node index.js`
 6. Login to your DNS manager, point the domain you want your dashboard to be hosted on to your VPS IP address. (Example: dashboard.domain.com 192.168.0.1)
 7. Run `apt install nginx && apt install certbot` on the vps
 8. Run `ufw allow 80` and `ufw allow 443` on the vps
@@ -77,6 +77,6 @@ server {
 ```
 
 # Credit
-- [Palladium](https://github.com/PalladiumDashboard/Palladium)
+- [Palladium](https://github.com/PinePlatforms/Palladium)
 - [Palladium, fork by Ghostload74](https://github.com/Ghostload74/Palladium)
 

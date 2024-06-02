@@ -61,6 +61,25 @@
                   </span>
                 </div>
               </div>
+              <% } %> <% if (req.query.success=="DELETE" ) { %>
+                <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
+                  <div class="flex">
+                    <div class="py-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-bold">Server Deleted</p>
+                      <p class="text-sm relative">The server has been deleted.</p>
+                    </div>
+                    <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
               <% } %> <% if (req.query.success=="CREATED" ) { %>
               <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
                 <div class="flex">

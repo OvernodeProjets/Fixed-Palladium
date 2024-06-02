@@ -1,6 +1,6 @@
 <%- include('./components/wrapper') %>
 
-        <main class="flex-1 bg-gray-800">
+<main class="flex-1 bg-gray-800">
           <div class="py-6">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               <!-- Content -->
@@ -157,7 +157,9 @@
                   let disk = encodeURIComponent(document.getElementById("disk").value);
                   let cpu = encodeURIComponent(document.getElementById("cpu").value);
                   let location = encodeURIComponent(document.getElementById("location").value);
-                  document.location.href = `/create?name=${name}&egg=${egg}&ram=${ram}&disk=${disk}&cpu=${cpu}&location=${location}`;
+                  let database = encodeURIComponent(document.getElementById("database").value);
+                  let backup = encodeURIComponent(document.getElementById("backup").value)
+                  document.location.href = `/create?name=${name}&egg=${egg}&ram=${ram}&disk=${disk}&cpu=${cpu}&database=${database}&backup=${backup}&location=${location}`;
                 }
               </script>
               <div class="mt-10 sm:mt-0">
@@ -185,7 +187,7 @@
                               <div class="col-span-3 sm:col-span-2">
                                 <label for="company-website" class="block text-sm font-medium text-gray-400">CPU</label>
                                 <div class="mt-1 flex rounded-md shadow-sm">
-                                  <input type="text" name="company-website" id="cpu" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="2048" />
+                                  <input type="text" name="company-website" id="cpu" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="100" />
                                 </div>
                               </div>
                             </div>
@@ -203,6 +205,46 @@
                     </div>
                   </div>
                 </div>
+                <div class="hidden sm:block" aria-hidden="true">
+                  <div class="py-5">
+                    <div class="border-t border-gray-700/75"></div>
+                  </div>
+                </div>
+                <div class="mt-10 sm:mt-0">
+                  <div>
+                    <div class="md:grid md:grid-cols-3 md:gap-6">
+                      <div class="md:col-span-1">
+                        <div class="px-4 sm:px-0">
+                          <h3 class="text-lg font-medium leading-6 text-white">Extra Ressource</h3>
+                          <p class="mt-1 text-sm text-gray-400">Decide how much of your total resource balance should be allocated to this database and backup server.</p>
+                        </div>
+                      </div>
+                      <div class="mt-5 md:col-span-2 md:mt-0">
+                        <form action="#" method="POST">
+                          <div class="shadow sm:overflow-hidden sm:rounded-md">
+                            <div class="space-y-6 bg-gray-700/50 px-4 py-5 sm:p-6 rounded-md">
+                              <div class="grid grid-cols-3 gap-6">
+                                <div class="col-span-3 sm:col-span-2">
+                                  <label for="company-website" class="block text-sm font-medium text-gray-400">Database</label>
+                                  <div class="mt-1 flex rounded-md shadow-sm">
+                                    <input type="text" name="company-website" id="database" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="1" />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="grid grid-cols-3 gap-6">
+                                <div class="col-span-3 sm:col-span-2">
+                                  <label for="company-website" class="block text-sm font-medium text-gray-400">Backup</label>
+                                  <div class="mt-1 flex rounded-md shadow-sm">
+                                    <input type="text" name="company-website" id="backup" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="1" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 <div class="hidden sm:block" aria-hidden="true">
                   <div class="py-5">
                     <div class="border-t border-gray-700/75"></div>
