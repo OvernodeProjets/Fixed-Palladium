@@ -103,26 +103,7 @@
               <!-- This example requires Tailwind CSS v2.0+ -->
               <div>
                 <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-                  <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
-                    <dt>
-                      <div class="absolute bg-blue-500 rounded-md p-3">
-                        <!-- Heroicon name: outline/users -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-                        </svg>
-                      </div>
-                      <p class="ml-16 text-sm font-medium text-gray-500 truncate">RAM Available</p>
-                    </dt>
-                    <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
-                      <p class="text-2xl font-semibold text-white"><%= max.ram - existing.ram %>MB</p>
-                      <div class="absolute bottom-0 inset-x-0 bg-gray-700/25 px-4 py-4 sm:px-6">
-                        <div class="text-sm">
-                          <a href="../store" class="font-medium text-blue-300 hover:text-blue-400"> Buy extra RAM</a>
-                        </div>
-                      </div>
-                    </dd>
-                  </div>
-
+                  
                   <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
                     <dt>
                       <div class="absolute bg-blue-500 rounded-md p-3">
@@ -138,6 +119,26 @@
                       <div class="absolute bottom-0 inset-x-0 bg-gray-700/25 px-4 py-4 sm:px-6">
                         <div class="text-sm">
                           <a href="../store" class="font-medium text-blue-300 hover:text-blue-400"> Buy extra CPU</a>
+                        </div>
+                      </div>
+                    </dd>
+                  </div>
+
+                  <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
+                    <dt>
+                      <div class="absolute bg-blue-500 rounded-md p-3">
+                        <!-- Heroicon name: outline/users -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                        </svg>
+                      </div>
+                      <p class="ml-16 text-sm font-medium text-gray-500 truncate">RAM Available</p>
+                    </dt>
+                    <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                      <p class="text-2xl font-semibold text-white"><%= max.ram - existing.ram %>MB</p>
+                      <div class="absolute bottom-0 inset-x-0 bg-gray-700/25 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                          <a href="../store" class="font-medium text-blue-300 hover:text-blue-400"> Buy extra RAM</a>
                         </div>
                       </div>
                     </dd>
@@ -174,12 +175,12 @@
                           <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RAM</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPU</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RAM</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disk</th>
-                            <th scope="col" class="relative px-6 py-3">
-                              <span class="sr-only">Edit</span>
-                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Database</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Backup</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Option</th>
                           </tr>
                         </thead>
                         <tbody class="bg-gray-700/50 divide-y divide-gray-700/10">
@@ -187,9 +188,11 @@
                           <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= server.attributes.name %></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.identifier %></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.limits.memory %></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.limits.cpu %></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.limits.memory %></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.limits.disk %></td>
+                            <td class="px-12 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.feature_limits.databases %></td>
+                            <td class="px-11 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.feature_limits.backups %></td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <a href="../delete?id=<%= server.attributes.id %>" class="text-red-300 hover:text-red-400">Delete</a>
                             </td>
