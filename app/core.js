@@ -10,21 +10,19 @@ const router = express.Router();
 const pterodactyl = [{
   "url": process.env.PTERODACTYL_URL, 
   "key": process.env.PTERODACTYL_KEY
-}]
+}];
 
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
+  if (req.isAuthenticated()) return next();
   
   req.session.returnTo = req.originalUrl;
   res.redirect('/');
-}
+};
 
 async function checkPassword(email) {
   let password = await db.get(`password-${email}`);
   return password;
-}
+};
 
 // Resources
 
@@ -68,16 +66,16 @@ const existingResources = async (email) => {
   };
 };
   
-  // Max resources (the ones the user has purchased or been given)
-  const maxResources = async (email) => {
-    return {
-      "cpu": await db.get(`cpu-${email}`),
-      "ram": await db.get(`ram-${email}`),
-      "disk": await db.get(`disk-${email}`),
-      "database": await db.get(`database-${email}`),
-      "backup": await db.get(`backup-${email}`)
-    };
+// Max resources (the ones the user has purchased or been given)
+const maxResources = async (email) => {
+  return {
+    "cpu": await db.get(`cpu-${email}`),
+    "ram": await db.get(`ram-${email}`),
+    "disk": await db.get(`disk-${email}`),
+    "database": await db.get(`database-${email}`),
+    "backup": await db.get(`backup-${email}`)
   };
+};
 
 // Set default resources
 async function ensureResourcesExist(email) {
@@ -120,46 +118,49 @@ router.get('/', (req, res) => {
 });
 
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
-    try {
-      const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(req.user.emails[0].value)}`, {
-        headers: {
-          'Authorization': `Bearer ${pterodactyl[0].key}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      const servers = response.data.data[0]?.attributes?.relationships?.servers?.data || [];
-  
-      // Ensure all resources are set to 0 if they don't exist
-      await ensureResourcesExist(req.user.emails[0].value);
-  
-      // Calculate existing and maximum resources
-      const existing = await existingResources(req.user.emails[0].value);
-      const max = await maxResources(req.user.emails[0].value);
-  
-      res.render('dashboard', { 
-        coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
-        req: req, // Request (queries)
-        name: process.env.APP_NAME, // Dashboard name
-        user: req.user, // User info
-        servers, // Servers the user owns
-        existing, // Existing resources
-        max, // Max resources,
-        admin: await db.get(`admin-${req.user.emails[0].value}`) // Admin status
-      });
-    } catch (error) {
-      res.redirect('/?err=INTERNALERROR');
-    }
-  });
+  try {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(req.user.email)}`, {
+      headers: {
+        'Authorization': `Bearer ${pterodactyl[0].key}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    const servers = response.data.data[0]?.attributes?.relationships?.servers?.data || [];
+
+    // Ensure all resources are set to 0 if they don't exist
+    await ensureResourcesExist(req.user.email);
+
+    // Calculate existing and maximum resources
+    const existing = await existingResources(req.user.email);
+    const max = await maxResources(req.user.email);
+
+    res.render('dashboard', { 
+      coins: await db.get(`coins-${req.user.email}`), // User's coins
+      req: req, // Request (queries)
+      name: process.env.APP_NAME, // Dashboard name
+      user: req.user, // User info
+      servers, // Servers the user owns
+      existing, // Existing resources
+      max, // Max resources,
+      admin: await db.get(`admin-${req.user.email}`) // Admin status
+    });
+  } catch (error) {
+    res.redirect('/?err=INTERNALERROR');
+  }
+});
   
 router.get('/credentials', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
   res.render('credentials', { 
-    coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
+    coins: await db.get(`coins-${req.user.email}`), // User's coins
     req: req, // Request (queries)
     name: process.env.APP_NAME, // Dashboard name
     user: req.user, // User info
-    admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
-    password: await checkPassword(req.user.emails[0].value)}) // Account password
+    admin: await db.get(`admin-${req.user.email}`), // Admin status
+    password: await checkPassword(req.user.email) // Account password
+  }) 
 });
 
 // Panel

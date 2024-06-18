@@ -13,7 +13,7 @@ const router = express.Router();
 const pterodactyl = [{
   "url": process.env.PTERODACTYL_URL, 
   "key": process.env.PTERODACTYL_KEY
-}]
+}];
 
 // Figure out how what the user's total resource usage is right now
 async function calculateResource(email, resource, isFeatureLimit = false) {
@@ -42,46 +42,45 @@ async function calculateResource(email, resource, isFeatureLimit = false) {
       if (err) console.log(`Failed to save log: ${err}`);
     });
   }
-}
+};
 
-  // Existing resources (the ones in use on servers)
-  const existingResources = async (email) => {
-    return {
-      "cpu": await calculateResource(email, 'cpu'),
-      "ram": await calculateResource(email, 'memory'),
-      "disk": await calculateResource(email, 'disk'),
-      "database": await calculateResource(email, 'databases', true),
-      "backup": await calculateResource(email, 'backups', true)
-    };
+// Existing resources (the ones in use on servers)
+const existingResources = async (email) => {
+  return {
+    "cpu": await calculateResource(email, 'cpu'),
+    "ram": await calculateResource(email, 'memory'),
+    "disk": await calculateResource(email, 'disk'),
+    "database": await calculateResource(email, 'databases', true),
+    "backup": await calculateResource(email, 'backups', true)
   };
+};
 
-  // Max resources (the ones the user has purchased or been given)
-  const maxResources = async (email) => {
-    return {
-      "cpu": await db.get(`cpu-${email}`),
-      "ram": await db.get(`ram-${email}`),
-      "disk": await db.get(`disk-${email}`),
-      "database": await db.get(`database-${email}`),
-      "backup": await db.get(`backup-${email}`)
-    };
+// Max resources (the ones the user has purchased or been given)
+const maxResources = async (email) => {
+  return {
+    "cpu": await db.get(`cpu-${email}`),
+    "ram": await db.get(`ram-${email}`),
+    "disk": await db.get(`disk-${email}`),
+    "database": await db.get(`database-${email}`),
+    "backup": await db.get(`backup-${email}`)
   };
+};
 
 // Decided not to use pterodactyl.* here
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    
+    if (req.isAuthenticated()) return next();
+
     req.session.returnTo = req.originalUrl;
     res.redirect('/');
   }
 
 // Delete server
 router.get('/delete', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (!req.query.id) return res.redirect('../dashboard?err=MISSINGPARAMS');
     try {
-        const userId = await db.get(`id-${req.user.emails[0].value}`);
+        const userId = await db.get(`id-${req.user.email}`);
         const serverId = req.query.id;
 
         const server = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/servers/${serverId}`, {
@@ -116,12 +115,13 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
 // Create server
 
 router.get('/create', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (!req.query.name || !req.query.location || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup) return res.redirect('../create-server?err=MISSINGPARAMS');
 
     // Check if user has enough resources to create a server
 
-    const max = await maxResources(req.user.emails[0].value);
-    const existing = await existingResources(req.user.emails[0].value);
+    const max = await maxResources(req.user.email);
+    const existing = await existingResources(req.user.email);
 
     if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.ram) > parseInt(max.ram - existing.ram)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
@@ -146,7 +146,7 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../create-server?err=INVALID');
 
     try {
-        const userId = await db.get(`id-${req.user.emails[0].value}`);
+        const userId = await db.get(`id-${req.user.email}`);
         const name = req.query.name;
         const location = parseInt(req.query.location);
         const eggId = parseInt(req.query.egg);
@@ -199,12 +199,13 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/create-server', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     res.render('create', {
       req: req, // Requests (queries) 
       name: process.env.APP_NAME, // Dashboard name
       user: req.user, // User info (if logged in)
-      admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
-      coins: await db.get(`coins-${req.user.emails[0].value}`), // Coins,
+      admin: await db.get(`admin-${req.user.email}`), // Admin status
+      coins: await db.get(`coins-${req.user.email}`), // Coins,
       locations: require('../storage/locations.json'), // Locations
       locationids: require('../storage/locationids.json'), // Location data
       eggs: require('../storage/eggs.json') // Eggs data

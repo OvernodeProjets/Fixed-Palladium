@@ -107,7 +107,7 @@
                   <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
                     <dt>
                       <div class="absolute bg-blue-500 rounded-md p-3">
-                        <!-- Heroicon name: outline/users -->
+                        <!-- Heroicon name: cpu-chip -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
                         </svg>
@@ -127,7 +127,7 @@
                   <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
                     <dt>
                       <div class="absolute bg-blue-500 rounded-md p-3">
-                        <!-- Heroicon name: outline/users -->
+                        <!-- Heroicon name: queue-list -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                         </svg>
@@ -147,7 +147,7 @@
                   <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
                     <dt>
                       <div class="absolute bg-blue-500 rounded-md p-3">
-                        <!-- Heroicon name: outline/users -->
+                        <!-- Heroicon name: archive-box -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                         </svg>
@@ -163,6 +163,47 @@
                       </div>
                     </dd>
                   </div>
+
+                  <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
+                    <dt>
+                      <div class="absolute bg-blue-500 rounded-md p-3">
+                        <!-- Heroicon name: circle-stack -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                        </svg>
+                      </div>
+                      <p class="ml-16 text-sm font-medium text-gray-500 truncate">Backup Available</p>
+                    </dt>
+                    <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                      <p class="text-2xl font-semibold text-white"><%= max.backup - existing.backup %></p>
+                      <div class="absolute bottom-0 inset-x-0 bg-gray-700/25 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                          <a href="../store" class="font-medium text-blue-300 hover:text-blue-400"> Buy extra Backup</a>
+                        </div>
+                      </div>
+                    </dd>
+                  </div>
+
+                  <div class="relative bg-gray-700/50 pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden">
+                    <dt>
+                      <div class="absolute bg-blue-500 rounded-md p-3">
+                        <!-- Heroicon name: circle-stack -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                        </svg>
+                      </div>
+                      <p class="ml-16 text-sm font-medium text-gray-500 truncate">Database Available</p>
+                    </dt>
+                    <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                      <p class="text-2xl font-semibold text-white"><%= max.database - existing.database %></p>
+                      <div class="absolute bottom-0 inset-x-0 bg-gray-700/25 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                          <a href="../store" class="font-medium text-blue-300 hover:text-blue-400"> Buy extra Database</a>
+                        </div>
+                      </div>
+                    </dd>
+                  </div>
+
                 </dl>
               </div>
               <!-- This example requires Tailwind CSS v2.0+ -->

@@ -1,54 +1,89 @@
 const express = require('express');
 const axios = require('axios');
+const fs = require('fs');
 
 const Keyv = require('keyv');
 const db = new Keyv(process.env.KEYV_URI);
 
 const router = express.Router();
 
+const pterodactyl = [{
+    "url": process.env.PTERODACTYL_URL, 
+    "key": process.env.PTERODACTYL_KEY
+}];
+
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return next();
-    }
+    if (req.isAuthenticated()) return next();
     
     req.session.returnTo = req.originalUrl;
     res.redirect('/');
-}
+};
 
 router.get('/admin', ensureAuthenticated, async (req, res) => {
-    if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return res.redirect('/login/auth0');
-    if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if(await db.get(`admin-${req.user.email}`) == true) {
         res.render('admin', {
             user: req.user, // User info
-            coins: await db.get(`coins-${req.user.emails[0].value}`), // User's coins
+            coins: await db.get(`coins-${req.user.email}`), // User's coins
             req: req, // Request (queries)
-            admin: await db.get(`admin-${req.user.emails[0].value}`), // Admin status
+            admin: await db.get(`admin-${req.user.email}`), // Admin status
             name: process.env.APP_NAME // App name
         });
     } else {
         res.redirect('/dashboard');
     }
 });
-// doesn't work for now
+
 router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
-    if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return res.redirect('/login/auth0');
-    if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
-            const response = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/nests/1/eggs?include=nest,servers`, {
+    if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            // just fetch the first page, i will see that later
+            const response = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/nests/1/eggs?include=nest,variables`, {
                 headers: {
+                    'Authorization': `Bearer ${pterodactyl[0].key}`,
                     'Accept': 'application/json',
-                    Authorization: `Bearer ${process.env.PTERODACTYL_KEY}`
+                    'Content-Type': 'application/json'
                 }
             });
-            console.log(response.data.data);
-        res.redirect('/admin?success=COMPLETE');
+
+            const eggs = response.data.data;
+            const formattedEggs = eggs.map(egg => ({
+                id: egg.attributes.id,
+                name: egg.attributes.name,
+                description: egg.attributes.description,
+                docker_image: egg.attributes.docker_image,
+                startup: egg.attributes.startup,
+                settings: {
+                    comment: "You'll need to modify the settings yourself, I'll modfirait for him to add them later. "
+                }
+            }));
+
+            let existingEggs = []
+            try {
+                const existingEggsData = fs.readFileSync('storage/eggs.json');
+                existingEggs = JSON.parse(existingEggsData);
+            } catch (error) {
+                console.log("No existing eggs file found.");
+            }
+
+            const allEggs = [...existingEggs, ...formattedEggs]
+            fs.writeFileSync('storage/eggs.json', JSON.stringify(allEggs, null, 2));
+
+            res.redirect('/admin?success=COMPLETE');
+        } catch (error) {
+            console.error(`Error fetching eggs: ${error}`);
+            res.redirect('/admin?err=FETCH_FAILED');
+        }
     } else {
         res.redirect('/dashboard');
     }
 });
 
 router.get('/addcoins', ensureAuthenticated, async (req, res) => {
-    if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return res.redirect('/login/auth0');
-    if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if(await db.get(`admin-${req.user.email}`) == true) {
+        
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt((await db.get(`coins-${req.query.email}`))) + parseInt(req.query.amount);
         await db.set(`coins-${req.query.email}`, amount);
@@ -59,8 +94,9 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/setcoins', ensureAuthenticated, async (req, res) => {
-    if(req.user == undefined || req.user.emails.length < 1 || req.user.emails == undefined) return res.redirect('/login/auth0');
-    if(await db.get(`admin-${req.user.emails[0].value}`) == true) {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if(await db.get(`admin-${req.user.email}`) == true) {
+
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt(req.query.amount);
         await db.set(`coins-${req.query.email}`, amount);
@@ -69,5 +105,20 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
         res.redirect('/dashboard');
     }
 });
+
+router.get('/addressources', ensureAuthenticated, async (req, res) => {
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+      if(await db.get(`admin-${req.user.email}`) == true) {
+
+        if (req.query.cpu != 'cpu' && req.query.ram != 'ram' && req.query.disk != 'disk' && req.query.backup != 'backup' && req.query.database != 'database') return res.redirect('/store?err=INVALIDRESOURCE');
+        console.log(req.query.cpu)
+          let amount = parseInt(req.query.amount);
+          await db.set(`coins-${req.query.email}`, amount);
+          res.redirect('/admin?success=COMPLETE');
+
+      } else {
+          res.redirect('/dashboard');
+      }
+  });
 
 module.exports = router;
