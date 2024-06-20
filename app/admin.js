@@ -21,7 +21,7 @@ function ensureAuthenticated(req, res, next) {
 
 router.get('/admin', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-    if(await db.get(`admin-${req.user.email}`) == true) {
+    if (await db.get(`admin-${req.user.email}`) == true) {
         res.render('admin', {
             user: req.user, // User info
             coins: await db.get(`coins-${req.user.email}`), // User's coins
@@ -55,7 +55,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                 docker_image: egg.attributes.docker_image,
                 startup: egg.attributes.startup,
                 settings: {
-                    comment: "You'll need to modify the settings yourself, I'll modfirait for him to add them later. "
+                    comment: "You'll need to modify the settings yourself, I'll edit for him to add them later. "
                 }
             }));
 
@@ -82,7 +82,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
 
 router.get('/addcoins', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-    if(await db.get(`admin-${req.user.email}`) == true) {
+    if (await db.get(`admin-${req.user.email}`) == true) {
         
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt((await db.get(`coins-${req.query.email}`))) + parseInt(req.query.amount);
@@ -95,7 +95,7 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
 
 router.get('/setcoins', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-    if(await db.get(`admin-${req.user.email}`) == true) {
+    if (await db.get(`admin-${req.user.email}`) == true) {
 
         if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
         let amount = parseInt(req.query.amount);
@@ -106,19 +106,40 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/addressources', ensureAuthenticated, async (req, res) => {
+router.get('/addresources', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-      if(await db.get(`admin-${req.user.email}`) == true) {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        const { email, cpu, ram, disk, backup, database } = req.query;
+        if (!email || !cpu || !ram || !disk || !backup || !database) return res.redirect('/admin?err=INVALIDPARAMS');
 
-        if (req.query.cpu != 'cpu' && req.query.ram != 'ram' && req.query.disk != 'disk' && req.query.backup != 'backup' && req.query.database != 'database') return res.redirect('/store?err=INVALIDRESOURCE');
-        console.log(req.query.cpu)
-          let amount = parseInt(req.query.amount);
-          await db.set(`coins-${req.query.email}`, amount);
-          res.redirect('/admin?success=COMPLETE');
+        // Resource amounts
+        let cpuAmount = parseInt(cpu) * 100;
+        let ramAmount = parseInt(ram) * 1024;
+        let diskAmount = parseInt(disk) * 1024;
+        let backupAmount = parseInt(backup);
+        let databaseAmount = parseInt(database);
 
-      } else {
-          res.redirect('/dashboard');
-      }
-  });
+        // Ensure amount are numbers
+        if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
+        
+        // Current resources
+        let currentCpu = parseInt(await db.get(`cpu-${email}`)) || 0;
+        let currentRam = parseInt(await db.get(`ram-${email}`)) || 0;
+        let currentDisk = parseInt(await db.get(`disk-${email}`)) || 0;
+        let currentBackup = parseInt(await db.get(`backup-${email}`)) || 0;
+        let currentDatabase = parseInt(await db.get(`database-${email}`)) || 0;
+
+        // Update resources
+        await db.set(`cpu-${email}`, currentCpu + cpuAmount);
+        await db.set(`ram-${email}`, currentRam + ramAmount);
+        await db.set(`disk-${email}`, currentDisk + diskAmount);
+        await db.set(`backup-${email}`, currentBackup + backupAmount);
+        await db.set(`database-${email}`, currentDatabase + databaseAmount);
+
+        res.redirect('/admin?success=COMPLETE');
+    } else {
+        res.redirect('/dashboard');
+    }
+});
 
 module.exports = router;

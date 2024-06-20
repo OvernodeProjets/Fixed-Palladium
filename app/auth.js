@@ -105,7 +105,7 @@ router.get('/callback/discord', passport.authenticate('discord', {
 
 // Reset password of the user via Pterodactyl API
 router.get('/reset', async (req, res) => {
-  if (!req.user) return res.redirect('/');
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/');
     try {
       // Generate new password
       let password = randomstring.generate(process.env.PASSWORD_LENGTH);
@@ -147,7 +147,7 @@ router.get('/reset', async (req, res) => {
         message: 'Error resetting password'
       });
     }
-  });
+});
 
 // Set up logout route
 router.get('/logout', (req, res) => {

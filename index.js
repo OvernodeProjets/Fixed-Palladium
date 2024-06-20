@@ -14,9 +14,13 @@ const Keyv = require('keyv');
 const db = new Keyv(process.env.KEYV_URI);
 
 // Add admin users
-let admins = process.env.ADMIN_USERS.split(',');
-for(let i = 0; i < admins.length; i++) {
-  db.set(`admin-${admins[i]}`, true);
+if (!process.env.ADMIN_USERS) {
+  console.warn('No admin users defined. Skipping admin user creation.');
+} else {
+  let admins = process.env.ADMIN_USERS.split(',');
+  for (let i = 0; i < admins.length; i++) {
+    db.set('admin-' + admins[i], true);
+  }
 }
 
 // Set up ejs as the view engine

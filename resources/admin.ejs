@@ -61,7 +61,26 @@
           </span>
         </div>
       </div>
-      <% } %>
+      <% } else if (req.query.err == "INVALIDAMOUNT") { %>
+        <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
+          <div class="flex">
+            <div class="py-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Invalid Amount</p>
+              <p class="text-sm relative">The amount entered is invalid. Please check and try again.</p>
+            </div>
+            <span onclick="location.href = '../admin';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <% } %>
 
       <h2 class="text-white font-bold">Add coins</h2>
       <p class="text-gray-400">Add coins to a user</p>

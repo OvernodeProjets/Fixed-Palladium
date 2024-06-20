@@ -18,13 +18,13 @@ const resourceCosts = {
     disk: process.env.DISK_COST,
     backup: process.env.BACKUP_COST,
     database: process.env.DATABASE_COST
-  };
+};
 
 let earners = {}
 
 router.ws('/afkws', async (ws, req) => {
     if (!req.user || !req.user.email || !req.user.id) return ws.close();
-    if(earners[req.user.email] == true) return ws.close();
+    if (earners[req.user.email] == true) return ws.close();
     const timeConf = process.env.AFK_TIME;
     let time = timeConf;
     earners[req.user.email] = true;
@@ -101,7 +101,7 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
         await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
         return res.redirect('/store?success=BOUGHTRESOURCE');
     } else if (req.query.resource == 'disk') {
-        let resourceAmount = 5120 * req.query.amount;
+        let resourceAmount = 1024 * req.query.amount;
         let resourceCost = resourceCosts.disk * req.query.amount;
 
         if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');

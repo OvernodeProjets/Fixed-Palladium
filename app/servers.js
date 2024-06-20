@@ -73,7 +73,7 @@ function ensureAuthenticated(req, res, next) {
 
     req.session.returnTo = req.originalUrl;
     res.redirect('/');
-  }
+};
 
 // Delete server
 router.get('/delete', ensureAuthenticated, async (req, res) => {
@@ -90,9 +90,7 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
             }
         });
 
-        if (server.data.attributes.user !== userId) {
-            return res.redirect('../dashboard?err=DONOTOWN');
-        }
+        if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
 
         await axios.delete(`${process.env.PTERODACTYL_URL}/api/application/servers/${serverId}`, {
             headers: {
@@ -164,8 +162,8 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
         const environment = egg.settings;
 
         await axios.post(`${process.env.PTERODACTYL_URL}/api/application/servers`, {
-          "name": name,
-          "user": userId,
+          name: name,
+          user: userId,
           environment: environment,
           egg: eggId,
           docker_image: dockerImage,
@@ -206,10 +204,8 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
       user: req.user, // User info (if logged in)
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       coins: await db.get(`coins-${req.user.email}`), // Coins,
-      locations: require('../storage/locations.json'), // Locations
-      locationids: require('../storage/locationids.json'), // Location data
       eggs: require('../storage/eggs.json') // Eggs data
     });
-  });
+});
 
 module.exports = router;

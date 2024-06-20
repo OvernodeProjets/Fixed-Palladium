@@ -53,7 +53,7 @@ async function calculateResource(email, resource, isFeatureLimit = false) {
       if (err) console.log(`Failed to save log: ${err}`);
     });
   }
-}
+};
 
 // Existing resources (the ones in use on servers)
 const existingResources = async (email) => {
@@ -105,7 +105,7 @@ async function ensureResourcesExist(email) {
     if (!await db.get(`coins-${email}` || 0)) {
         await db.set(`coins-${email}`, 0.00);
     }
-}
+};
 
 // Pages / Routes
 

@@ -18,8 +18,9 @@
                       document.getElementById("coinCountdown").innerHTML = `${z.amount} seconds`;
                     } else if (z.type == "coin") {
                       session++;
+                      currentCoins++;
                       document.getElementById("sessionEarn").innerHTML = `${session} coins`;
-                      //document.getElementById("sessionEarn").innerHTML = `${parseInt("<%= coins %>")+session} coins`
+                      document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`
                     }
                   };
                   ws.onerror = (err) => {
@@ -27,6 +28,7 @@
                     console.log(err);
                     document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
                     document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
+                    document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
                     setTimeout(() => {
                       connect();
                     }, 750);
@@ -34,6 +36,7 @@
                   ws.onclose = () => {
                     document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
                     document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
+                    document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
                     setTimeout(() => {
                       connect();
                     }, 750);
@@ -49,6 +52,10 @@
               <p class="text-gray-400">
                 This earning session you have earned
                 <code style="color: white" id="sessionEarn">0 coins</code>
+              </p>
+              <p class="text-gray-400">
+                Your current balance
+                <code style="color: white" id="currentCoins"><%= coins %> coins</code>
               </p>
             </div>
           </div>
