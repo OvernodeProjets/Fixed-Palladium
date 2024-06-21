@@ -7,30 +7,27 @@
               <script>
                 let session = 0;
                 let afkTime = 0;
-                let afkInterval;
-              
+                
                 function connect() {
-                  const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkws`);
+                  const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkwspath`);
                   ws.onopen = () => {
                     console.log("[WS] Connected to websocket.");
                     document.getElementById("coinCountdown").innerHTML = "Connected to websocket.";
-                    afkInterval = setInterval(() => {
-                      afkTime++;
-                      const hours = Math.floor(afkTime / 3600);
-                      const minutes = Math.floor((afkTime % 3600) / 60);
-                      const seconds = afkTime % 60;
-                      document.getElementById("afkTime").innerHTML = `${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
-                    }, 1000);
                   };
                   ws.onmessage = (msg) => {
                     let z = JSON.parse(msg.data);
                     if (z.type == "count") {
                       document.getElementById("coinCountdown").innerHTML = `${z.amount} seconds`;
+                      afkTime++;
+                      const hours = Math.floor(afkTime / 3600);
+                      const minutes = Math.floor((afkTime % 3600) / 60);
+                      const seconds = afkTime % 60;
+                      document.getElementById("afkTime").innerHTML = `${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
                     } else if (z.type == "coin") {
                       session++;
                       currentCoins++;
                       document.getElementById("sessionEarn").innerHTML = `${session} coins`;
-                      document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`
+                      document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`;
                     }
                   };
                   ws.onerror = (err) => {

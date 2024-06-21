@@ -27,28 +27,28 @@ let earners = {}
 
 // Afk
 
-router.ws('/afkws', async (ws, req) => {
+router.ws('/afkwspath', async (ws, req) => {
     if (!req.user || !req.user.email || !req.user.id) return ws.close();
     if (earners[req.user.email] == true) return ws.close();
     const timeConf = process.env.AFK_TIME;
     let time = timeConf;
     earners[req.user.email] = true;
     let aba = setInterval(async () => {
-        if(earners[req.user.email] == true) {
+        if (earners[req.user.email] == true) {
             time--;
-            if(time <= 0) {
+            if (time <= 0) {
                 time = timeConf;
-                ws.send(JSON.stringify({"type":"coin"}));
+                ws.send(JSON.stringify({ "type": "coin" }));
                 let r = parseInt((await db.get(`coins-${req.user.email}`))) + 1;
-               await db.set(`coins-${req.user.email}`,r);
+                await db.set(`coins-${req.user.email}`, r);
             }
-            ws.send(JSON.stringify({"type":"count","amount":time}));
+            ws.send(JSON.stringify({ "type": "count", "amount": time }));
         }
-    }, 1000)
+    }, 1000);
     ws.on('close', async () => {
         delete earners[req.user.email];
         clearInterval(aba);
-    })
+    });
 });
 
 router.get('/afk', ensureAuthenticated, async (req, res) => {
