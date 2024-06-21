@@ -114,86 +114,93 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
 
 router.get('/create', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-    if (!req.query.name || !req.query.location || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup) return res.redirect('../create-server?err=MISSINGPARAMS');
+  if (!req.query.name || !req.query.location || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup || !req.query.allocation) return res.redirect('../create-server?err=MISSINGPARAMS');
+  
+  // Check if user has enough resources to create a server
 
-    // Check if user has enough resources to create a server
+  const max = await maxResources(req.user.email);
+  const existing = await existingResources(req.user.email);
 
-    const max = await maxResources(req.user.email);
-    const existing = await existingResources(req.user.email);
+  if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  if (parseInt(req.query.ram) > parseInt(max.ram - existing.ram)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  if (parseInt(req.query.disk) > parseInt(max.disk - existing.disk)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  if (parseInt(req.query.database) > parseInt(max.database - existing.database)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  if (parseInt(req.query.backup) > parseInt(max.backup - existing.backup)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  if (parseInt(req.query.allocation) > parseInt(max.allocation - existing.allocation)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
 
-    if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.ram) > parseInt(max.ram - existing.ram)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.disk) > parseInt(max.disk - existing.disk)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.database) > parseInt(max.database - existing.database)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.backup) > parseInt(max.backup - existing.backup)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
+  // Ensure resources are above 128MB / 10%
 
-    // Ensure resources are above 128MB / 10%
-
-    if (parseInt(req.query.ram) < 128) return res.redirect('../create-server?err=INVALID');
-    if (parseInt(req.query.cpu) < 10) return res.redirect('../create-server?err=INVALID');
-    if (parseInt(req.query.disk) < 128) return res.redirect('../create-server?err=INVALID');
+  if (parseInt(req.query.ram) < 128) return res.redirect('../create-server?err=INVALID');
+  if (parseInt(req.query.cpu) < 10) return res.redirect('../create-server?err=INVALID');
+  if (parseInt(req.query.disk) < 128) return res.redirect('../create-server?err=INVALID');
 
     // Name checks
 
-    if (req.query.name.length > 100) return res.redirect('../create-server?err=INVALID');
-    if (req.query.name.length < 3) return res.redirect('../create-server?err=INVALID');
+  if (req.query.name.length > 100) return res.redirect('../create-server?err=INVALID');
+  if (req.query.name.length < 3) return res.redirect('../create-server?err=INVALID');
 
-    // Make sure locations, eggs, resources are numbers
+  // Make sure locations, eggs, resources are numbers
 
-    if (isNaN(req.query.location) || isNaN(req.query.egg) || isNaN(req.query.cpu) || isNaN(req.query.ram) || isNaN(req.query.disk) || isNaN(req.query.database) || isNaN(req.query.backup)) return res.redirect('../create-server?err=INVALID');
-    if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../create-server?err=INVALID');
+  if (isNaN(req.query.location) || isNaN(req.query.egg) || isNaN(req.query.cpu) || isNaN(req.query.ram) || isNaN(req.query.disk) || isNaN(req.query.database) || isNaN(req.query.backup) || isNaN(req.query.allocation)) return res.redirect('../create-server?err=INVALID');
+  if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../create-server?err=INVALID');
 
-    try {
-        const userId = await db.get(`id-${req.user.email}`);
-        const name = req.query.name;
-        const location = parseInt(req.query.location);
-        const eggId = parseInt(req.query.egg);
-        const cpu = parseInt(req.query.cpu);
-        const ram = parseInt(req.query.ram);
-        const disk = parseInt(req.query.disk);
-        const database = parseInt(req.query.database)
-        const backup = parseInt(req.query.backup);
-        
-        const eggs = require('../storage/eggs.json');
+  try {
+      const userId = await db.get(`id-${req.user.email}`);
+      const name = req.query.name;
+      const location = parseInt(req.query.location);
+      const eggId = parseInt(req.query.egg);
+      const cpu = parseInt(req.query.cpu);
+      const ram = parseInt(req.query.ram);
+      const disk = parseInt(req.query.disk);
+      const database = parseInt(req.query.database);
+      const backup = parseInt(req.query.backup);
+      const allocation = parseInt(req.query.allocation);
 
-        const egg = eggs.find(e => e.id == eggId);
-        const dockerImage = egg.docker_image;
-        const startupCommand = egg.startup;
-        const environment = egg.settings;
+      const eggs = require('../storage/eggs.json');
+      const egg = eggs.find(e => e.id === eggId);
+      if (!egg) return res.redirect('../create-server?err=INVALID_EGG');
 
-        await axios.post(`${process.env.PTERODACTYL_URL}/api/application/servers`, {
+      const dockerImage = egg.docker_image;
+      const startupCommand = egg.startup;
+      const environment = egg.settings;
+
+      await axios.post(`${process.env.PTERODACTYL_URL}/api/application/servers`, {
           name: name,
           user: userId,
-          environment: environment,
           egg: eggId,
           docker_image: dockerImage,
           startup: startupCommand,
+          environment: environment,
           limits: {
-            memory: ram,
-            swap: -1,
-            disk: disk,
-            io: 500,
-            cpu: cpu
+              memory: ram,
+              swap: -1,
+              disk: disk,
+              io: 500,
+              cpu: cpu
           },
           feature_limits: {
-            databases: database,
-            backups: backup
+              databases: database,
+              backups: backup,
+              allocations: allocation
           },
           deploy: {
             locations: [location],
             dedicated_ip: false,
             port_range: []
           }
-        }, {
-        headers: {
-          'Authorization': `Bearer ${process.env.PTERODACTYL_KEY}`
-        }});
+      }, {
+          headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${process.env.PTERODACTYL_KEY}`
+          }
+      });
 
-        res.redirect('../dashboard?success=CREATED');
-    } catch (error) {
-        console.error(error);
-        res.redirect('../create-server?err=ERRORONCREATE');
-    }
+      res.redirect('../dashboard?success=CREATED');
+  } catch (error) {
+      console.error(error);
+      res.redirect('../create-server?err=ERRORONCREATE');
+  }
 });
 
 router.get('/create-server', ensureAuthenticated, async (req, res) => {

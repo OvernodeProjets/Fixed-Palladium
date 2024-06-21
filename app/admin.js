@@ -19,6 +19,8 @@ function ensureAuthenticated(req, res, next) {
     res.redirect('/');
 };
 
+// Admin
+
 router.get('/admin', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
@@ -33,6 +35,8 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
         res.redirect('/dashboard');
     }
 });
+
+// Scan eggs
 
 router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
@@ -80,6 +84,8 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Set & Add coins
+
 router.get('/addcoins', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
@@ -105,6 +111,8 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
         res.redirect('/dashboard');
     }
 });
+
+// Set & Add resources
 
 router.get('/addresources', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
@@ -135,6 +143,35 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
         await db.set(`disk-${email}`, currentDisk + diskAmount);
         await db.set(`backup-${email}`, currentBackup + backupAmount);
         await db.set(`database-${email}`, currentDatabase + databaseAmount);
+
+        res.redirect('/admin?success=COMPLETE');
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+router.get('/setresources', ensureAuthenticated, async (req, res) => {
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        const { email, cpu, ram, disk, backup, database } = req.query;
+        if (!email || !cpu || !ram || !disk || !backup || !database) return res.redirect('/admin?err=INVALIDPARAMS');
+
+        // Resource amounts
+        let cpuAmount = parseInt(cpu) * 100;
+        let ramAmount = parseInt(ram) * 1024;
+        let diskAmount = parseInt(disk) * 1024;
+        let backupAmount = parseInt(backup);
+        let databaseAmount = parseInt(database);
+
+        // Ensure amount are numbers
+        if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
+
+        // Update resources
+        await db.set(`cpu-${email}`, cpuAmount);
+        await db.set(`ram-${email}`, ramAmount);
+        await db.set(`disk-${email}`, diskAmount);
+        await db.set(`backup-${email}`, backupAmount);
+        await db.set(`database-${email}`, databaseAmount);
 
         res.redirect('/admin?success=COMPLETE');
     } else {

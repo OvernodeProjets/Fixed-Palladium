@@ -12,6 +12,16 @@ const pterodactyl = [{
   "key": process.env.PTERODACTYL_KEY
 }];
 
+// Load plans from plan.json
+let plans = {};
+try {
+  const data = fs.readFileSync('./storage/plans.json', 'utf8');
+  plans = JSON.parse(data).PLAN;
+} catch (err) {
+  console.error("Failed to load plans:", err);
+  process.exit(1);
+}
+
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) return next();
   
@@ -25,6 +35,15 @@ async function checkPassword(email) {
 };
 
 // Resources
+
+async function getUserPlan(email) {
+  let plan = await db.get(`plan-${email}`);
+  if (!plan) {
+    plan = `${process.env.DEFAULT_PLAN}`; // Default plan
+    await db.set(`plan-${email}`, plan);
+  }
+  return plan.toUpperCase();
+}
 
 // Figure out how what the user's total resource usage is right now
 async function calculateResource(email, resource, isFeatureLimit = false) {
@@ -62,43 +81,56 @@ const existingResources = async (email) => {
     "ram": await calculateResource(email, 'memory'),
     "disk": await calculateResource(email, 'disk'),
     "database": await calculateResource(email, 'databases', true),
-    "backup": await calculateResource(email, 'backups', true)
+    "backup": await calculateResource(email, 'backups', true),
+    "allocation": await calculateResource(email, 'allocations', true)
   };
 };
   
 // Max resources (the ones the user has purchased or been given)
 const maxResources = async (email) => {
-  return {
+  return {  
     "cpu": await db.get(`cpu-${email}`),
     "ram": await db.get(`ram-${email}`),
     "disk": await db.get(`disk-${email}`),
     "database": await db.get(`database-${email}`),
-    "backup": await db.get(`backup-${email}`)
+    "backup": await db.get(`backup-${email}`),
+    "server": await db.get(`server-${email}`),
+    "allocation": await db.get(`allocation-${email}`)
   };
 };
 
 // Set default resources
 async function ensureResourcesExist(email) {
+    const planKey = await getUserPlan(email);
+    const plan = plans[planKey].resources;
     const resources = await maxResources(email);
 
     if (!resources.cpu || resources.cpu == 0) {
-        await db.set(`cpu-${email}`, process.env.DEFAULT_CPU);
+        await db.set(`cpu-${email}`, plan.cpu);
     }
 
     if (!resources.ram || resources.ram == 0) {
-        await db.set(`ram-${email}`, process.env.DEFAULT_RAM);
+        await db.set(`ram-${email}`, plan.ram);
     }
 
     if (!resources.disk || resources.disk == 0) {
-        await db.set(`disk-${email}`, process.env.DEFAULT_DISK);
+        await db.set(`disk-${email}`, plan.disk);
     }
 
     if (!resources.database || resources.database == 0) {
-      await db.set(`database-${email}`, process.env.SERVER_DEFAULT_DATABASES);
+      await db.set(`database-${email}`, plan.database);
     }
 
     if (!resources.backup || resources.backup == 0) {
-      await db.set(`backup-${email}`, process.env.SERVER_DEFAULT_BACKUPS);
+      await db.set(`backup-${email}`, plan.backup);
+    }
+
+    if (!resources.server || resources.server == 0) {
+      await db.set(`server-${email}`, plan.server);
+    }
+
+    if (!resources.allocation || resources.allocation == 0) {
+      await db.set(`allocation-${email}`, plan.allocation);
     }
 
     // Might as well add the coins too instead of having 2 separate functions
@@ -116,6 +148,8 @@ router.get('/', (req, res) => {
     user: req.user // User info (if logged in)
   });
 });
+
+// Dashboard
 
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
   try {
@@ -150,6 +184,8 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
     res.redirect('/?err=INTERNALERROR');
   }
 });
+
+// Credentials
   
 router.get('/credentials', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');

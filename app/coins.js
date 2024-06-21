@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 
 const Keyv = require('keyv');
 const db = new Keyv(process.env.KEYV_URI);
@@ -17,10 +19,13 @@ const resourceCosts = {
     ram: process.env.RAM_COST,
     disk: process.env.DISK_COST,
     backup: process.env.BACKUP_COST,
-    database: process.env.DATABASE_COST
+    database: process.env.DATABASE_COST,
+    allocation: process.env.ALLOCATION_COST
 };
 
 let earners = {}
+
+// Afk
 
 router.ws('/afkws', async (ws, req) => {
     if (!req.user || !req.user.email || !req.user.id) return ws.close();
@@ -59,15 +64,29 @@ router.get('/afk', ensureAuthenticated, async (req, res) => {
 
 // Store
 
+const plansFilePath = path.join(__dirname, '../storage/plans.json');
+const plansJson = fs.readFileSync(plansFilePath, 'utf-8');
+const plans = JSON.parse(plansJson);
+
 router.get('/store', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    
+    const userCurrentPlan = await db.get(`plan-${req.user.email}`);
+
+    const resourcePlans = Object.values(plans.PLAN).map(plan => {
+      return {
+        ...plan,
+        hasPlan: userCurrentPlan === plan.name.toUpperCase()
+      };
+    });
     res.render('store', {
         user: req.user, // User info
         coins: await db.get(`coins-${req.user.email}`), // User's coins
         req: req, // Request (queries)
         admin: await db.get(`admin-${req.user.email}`), // Admin status
         name: process.env.APP_NAME, // App name
-        resourceCosts: resourceCosts // Cost Ressources
+        resourceCosts: resourceCosts, // Cost Ressources
+        resourcePlans: resourcePlans
     });
 });
 
@@ -78,7 +97,7 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
     if (isNaN(req.query.amount) || req.query.amount > 10) return res.redirect('/store?err=INVALIDAMOUNT');
 
     // Ensure resource is a valid one
-    if (req.query.resource != 'cpu' && req.query.resource != 'ram' && req.query.resource != 'disk' && req.query.resource != 'backup' && req.query.resource != 'database') return res.redirect('/store?err=INVALIDRESOURCE');
+    if (req.query.resource != 'cpu' && req.query.resource != 'ram' && req.query.resource != 'disk' && req.query.resource != 'backup' && req.query.resource != 'database' && req.query.resource != 'allocation') return res.redirect('/store?err=INVALIDRESOURCE');
 
     let coins = await db.get(`coins-${req.user.email}`);
     let currentResources = await db.get(`${req.query.resource}-${req.user.email}`);
@@ -124,7 +143,55 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
         await db.set(`database-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
         await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
         return res.redirect('/store?success=BOUGHTRESOURCE');
+    } else if (req.query.resource == 'allocation') {
+        let resourceAmount = req.query.amount;
+        let resourceCost = resourceCosts.allocation * req.query.amount;
+
+        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
+        await db.set(`allocation-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
+        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+        return res.redirect('/store?success=BOUGHTRESOURCE');
     }
+});
+
+router.get('/buyplan', ensureAuthenticated, async (req, res) => {
+    console.log(plans)
+    if (req.query.plan == undefined) return res.redirect('/store?err=MISSINGPARAMS');
+
+    const planId = parseInt(req.query.plan);
+    if (isNaN(planId)) return res.redirect('/store?err=INVALIDPLAN');
+
+    // Filter
+    let selectedPlan = null;
+    let selectedPlanName = '';
+    for (const key in plans.PLAN) {
+        if (plans.PLAN[key].id === planId) {
+            selectedPlan = plans.PLAN[key];
+            selectedPlanName = key.toUpperCase();
+            break;
+        }
+    }
+
+    // Ensure plan is a valid one
+    if (!selectedPlan) return res.redirect('/store?err=INVALIDPLAN');
+
+    let coins = await db.get(`coins-${req.user.email}`);
+    let currentPlan = await db.get(`plan-${req.user.email}`);
+
+    // Plan costs
+    let planCost = selectedPlan.price;
+    if (coins < planCost) return res.redirect('/store?err=NOTENOUGHCOINS');
+    if (currentPlan == selectedPlanName) return res.redirect('/store?err=ALREADYPLAN');
+
+    await db.set(`plan-${req.user.email}`, selectedPlanName);
+    await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(planCost));
+
+    // Set resources of plan
+    const resources = selectedPlan.resources;
+    for (const resource in resources) {
+        await db.set(`${resource}-${req.user.email}`, resources[resource])
+    }
+    return res.redirect('/store?success=BOUGHTPLAN');
 });
 
 module.exports = router;

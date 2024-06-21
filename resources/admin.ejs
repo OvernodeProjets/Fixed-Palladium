@@ -82,21 +82,24 @@
         </div>
         <% } %>
 
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
+
       <h2 class="text-white font-bold">Add coins</h2>
       <p class="text-gray-400">Add coins to a user</p>
 
       <br />
 
-      <label for="company-website" class="block text-sm font-medium text-gray-400">Email</label>
+      <label for="ac-amount" class="block text-sm font-medium text-gray-400">Email</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="company-website" id="ac-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
+        <input type="text" name="ac-amount" id="ac-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
       </div>
 
       <br />
 
-      <label for="company-website" class="block text-sm font-medium text-gray-400">Amount</label>
+      <label for="ac-amount" class="block text-sm font-medium text-gray-400">Amount</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="company-website" id="ac-amount" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="100" />
+        <input type="text" name="ac-amount" id="ac-amount" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="100" />
       </div>
 
       <br />
@@ -110,37 +113,30 @@
           document.location.href = `/addcoins?amount=${amount}&email=${email}`;
         };
       </script>
+    </div>
 
-      <br /><br />
-
-      <div class="hidden sm:block" aria-hidden="true">
-        <div class="py-5">
-          <div class="border-t border-gray-700/75"></div>
-        </div>
-      </div>
-
-      <br />
-
+      <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
       <h2 class="text-white font-bold">Set coins</h2>
       <p class="text-gray-400">Set coins for a user</p>
 
       <br />
 
-      <label for="company-website" class="block text-sm font-medium text-gray-400">Email</label>
+      <label for="sc-email" class="block text-sm font-medium text-gray-400">Email</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="company-website" id="sc-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
+        <input type="text" name="sc-email" id="sc-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
       </div>
 
       <br />
 
-      <label for="company-website" class="block text-sm font-medium text-gray-400">Amount</label>
+      <label for="sc-amount" class="block text-sm font-medium text-gray-400">Amount</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="company-website" id="sc-amount" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="100" />
+        <input type="text" name="sc-amount" id="sc-amount" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="100" />
       </div>
 
       <br />
 
       <a onclick="setCoins()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Set </a>
+      
       <script>
         async function setCoins() {
           let email = encodeURIComponent(document.getElementById("sc-email").value);
@@ -148,60 +144,66 @@
           document.location.href = `/setcoins?amount=${amount}&email=${email}`;
         };
       </script>
+
+    </div>
+  </div>
       
-      <br /><br />
+    <br />
 
-      <div class="hidden sm:block" aria-hidden="true">
-        <div class="py-5">
-          <div class="border-t border-gray-700/75"></div>
-        </div>
+    <div class="hidden sm:block" aria-hidden="true">
+      <div class="py-5">
+        <div class="border-t border-gray-700/75"></div>
       </div>
+    </div>
 
-      <br />
+    <br />
+
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
 
       <h2 class="text-white font-bold">Add Resources</h2>
       <p class="text-gray-400">Allocate resources to a user</p>
 
       <br />
 
-      <label for="resource-email" class="block text-sm font-medium text-gray-400">Email</label>
+      <label for="ar-email" class="block text-sm font-medium text-gray-400">Email</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-email" id="resource-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
+        <input type="text" name="ar-email" id="ar-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
       </div>
 
       <br />
 
-      <label for="resource-cpu" class="block text-sm font-medium text-gray-400">CPU</label>
+      <label for="ar-cpu" class="block text-sm font-medium text-gray-400">CPU</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-cpu" id="resource-cpu" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="CPU Cores" />
+        <input type="text" name="ar-cpu" id="ar-cpu" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="CPU Cores" />
       </div>
 
       <br />
 
-      <label for="resource-ram" class="block text-sm font-medium text-gray-400">RAM</label>
+      <label for="ar-ram" class="block text-sm font-medium text-gray-400">RAM</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-ram" id="resource-ram" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="RAM in GB" />
+        <input type="text" name="ar-ram" id="ar-ram" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="RAM in GB" />
       </div>
 
       <br />
 
-      <label for="resource-disk" class="block text-sm font-medium text-gray-400">Disk</label>
+      <label for="ar-disk" class="block text-sm font-medium text-gray-400">Disk</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-disk" id="resource-disk" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Disk Space in GB" />
+        <input type="text" name="ar-disk" id="ar-disk" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Disk Space in GB" />
       </div>
 
       <br />
 
-      <label for="resource-backup" class="block text-sm font-medium text-gray-400">Backup</label>
+      <label for="ar-backup" class="block text-sm font-medium text-gray-400">Backup</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-backup" id="resource-backup" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Backup" />
+        <input type="text" name="ar-backup" id="ar-backup" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Backup" />
       </div>
 
       <br />
 
-      <label for="resource-database" class="block text-sm font-medium text-gray-400">Database</label>
+      <label for="ar-database" class="block text-sm font-medium text-gray-400">Database</label>
       <div class="mt-1 flex rounded-md shadow-sm w-80">
-        <input type="text" name="resource-database" id="resource-database" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Database" />
+        <input type="text" name="ar-database" id="ar-database" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Database" />
       </div>
 
       <br />
@@ -212,16 +214,82 @@
 
       <script>
         async function addResources() {
-          let email = encodeURIComponent(document.getElementById("resource-email").value);
-          let cpu = encodeURIComponent(document.getElementById("resource-cpu").value);
-          let ram = encodeURIComponent(document.getElementById("resource-ram").value);
-          let disk = encodeURIComponent(document.getElementById("resource-disk").value);
-          let backup = encodeURIComponent(document.getElementById("resource-backup").value);
-          let database = encodeURIComponent(document.getElementById("resource-database").value);
+          let email = encodeURIComponent(document.getElementById("ar-email").value);
+          let cpu = encodeURIComponent(document.getElementById("ar-cpu").value);
+          let ram = encodeURIComponent(document.getElementById("ar-ram").value);
+          let disk = encodeURIComponent(document.getElementById("ar-disk").value);
+          let backup = encodeURIComponent(document.getElementById("ar-backup").value);
+          let database = encodeURIComponent(document.getElementById("ar-database").value);
           document.location.href = `/addresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}`;
         };
       </script>
+    </div>
 
+    <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
+      <h2 class="text-white font-bold">Set Resources</h2>
+      <p class="text-gray-400">Set resources to a user</p>
+
+      <br />
+
+      <label for="sr-email" class="block text-sm font-medium text-gray-400">Email</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-email" id="sr-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" />
+      </div>
+
+      <br />
+
+      <label for="sr-cpu" class="block text-sm font-medium text-gray-400">CPU</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-cpu" id="sr-cpu" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="CPU Cores" />
+      </div>
+
+      <br />
+
+      <label for="sr-ram" class="block text-sm font-medium text-gray-400">RAM</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-ram" id="sr-ram" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="RAM in GB" />
+      </div>
+
+      <br />
+
+      <label for="sr-disk" class="block text-sm font-medium text-gray-400">Disk</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-disk" id="sr-disk" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Disk Space in GB" />
+      </div>
+
+      <br />
+
+      <label for="sr-backup" class="block text-sm font-medium text-gray-400">Backup</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-backup" id="sr-backup" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Backup" />
+      </div>
+
+      <br />
+
+      <label for="sr-database" class="block text-sm font-medium text-gray-400">Database</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="sr-database" id="sr-database" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Database" />
+      </div>
+
+      <br />
+
+      <a onclick="setResources()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Add Resources </a>
+
+      <br />
+
+      <script>
+        async function setResources() {
+          let email = encodeURIComponent(document.getElementById("sr-email").value);
+          let cpu = encodeURIComponent(document.getElementById("sr-cpu").value);
+          let ram = encodeURIComponent(document.getElementById("sr-ram").value);
+          let disk = encodeURIComponent(document.getElementById("sr-disk").value);
+          let backup = encodeURIComponent(document.getElementById("sr-backup").value);
+          let database = encodeURIComponent(document.getElementById("sr-database").value);
+          document.location.href = `/setresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}`;
+        };
+      </script>
+    </div>
+  </div>
       <div class="hidden sm:block" aria-hidden="true">
         <div class="py-5">
           <div class="border-t border-gray-700/75"></div>

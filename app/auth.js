@@ -29,55 +29,59 @@ const discordStrategy = new DiscordStrategy({
 
 // Pterodactyl account system
 async function checkAccount(email, username, id) {
-    try {
+  try {
       // Check if user has an account
-      const response = await axios.get(`${pterodactyl[0].url}/api/application/users?filter[email]=${email}`, {
-        headers: {
-          'Authorization': `Bearer ${pterodactyl[0].key}`,
-          'Content-Type': 'application/json',
-          'Accept': 'Application/vnd.pterodactyl.v1+json'
-        }
+      let response = await axios.get(`${pterodactyl[0].url}/api/application/users?filter[email]=${email}`, {
+          headers: {
+              'Authorization': `Bearer ${pterodactyl[0].key}`,
+              'Content-Type': 'application/json',
+              'Accept': 'Application/vnd.pterodactyl.v1+json'
+          }
       });
       // If yes, do nothing
-      if (response.data.data.length > 0) return;
-      // If not, create one
-      let password = randomstring.generate(process.env.PASSWORD_LENGTH);
-      await axios.post(`${pterodactyl[0].url}/api/application/users`, {
-        'email': email,
-        'username': username,
-        "first_name": id,
-        "last_name": 'Palladium User',
-        'password': password
-      }, {
-        headers: {
-          'Authorization': `Bearer ${pterodactyl[0].key}`,
-          'Content-Type': 'application/json',
-          'Accept': 'Application/vnd.pterodactyl.v1+json'
-        }
-      });
+      let userId;
+      if (response.data.data.length > 0) {
+          userId = response.data.data[0].attributes.id;
+      } else {
+          // If not, create one
+          let password = randomstring.generate(process.env.PASSWORD_LENGTH);
+          response = await axios.post(`${pterodactyl[0].url}/api/application/users`, {
+              'email': email,
+              'username': username,
+              "first_name": id,
+              "last_name": 'Palladium User',
+              'password': password
+          }, {
+              headers: {
+                  'Authorization': `Bearer ${pterodactyl[0].key}`,
+                  'Content-Type': 'application/json',
+                  'Accept': 'Application/vnd.pterodactyl.v1+json'
+              }
+          });
 
-      // Fetch the user's ID
-      const fetchId = await axios.get(`${pterodactyl[0].url}/api/application/users?filter[email]=${email}`, {
-        headers: {
-          'Authorization': `Bearer ${pterodactyl[0].key}`,
-          'Content-Type': 'application/json',
-          'Accept': 'Application/vnd.pterodactyl.v1+json'
-        }
-      });
-      const userId = fetchId.data.data[0].attributes.id;
-      db.set(`id-${email}`, userId);
+          // Fetch the user's ID
+          response = await axios.get(`${pterodactyl[0].url}/api/application/users?filter[email]=${email}`, {
+              headers: {
+                  'Authorization': `Bearer ${pterodactyl[0].key}`,
+                  'Content-Type': 'application/json',
+                  'Accept': 'Application/vnd.pterodactyl.v1+json'
+              }
+          });
+          userId = response.data.data[0].attributes.id;
+          // Set password in the database & log to console
+          db.set(`password-${email}`, password);
+          fs.appendFile(process.env.LOGS_PATH, '[LOG] User object created.\n', function (err) {
+            if (err) console.log(`Failed to save log: ${err}`);
+        });
+      }
 
-      fs.appendFile(process.env.LOGS_PATH, '[LOG] User object created.' + '\n', function (err) {
-        if (err) console.log(`Failed to save log: ${err}`);
+      // Set userID in the database
+      await db.set(`id-${email}`, userId);
+  } catch (error) {
+      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to check user information. The panel did not respond correctly.\n', function (err) {
+          if (err) console.log(`Failed to save log: ${err}`);
       });
-      
-      // Set password & log to console
-      db.set(`password-${email}`, password);
-    } catch (error) {
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to check user information. The panel did not respond correctly.' + '\n', function (err) {
-        if (err) console.log(`Failed to save log: ${err}`);
-      });
-    }
+  }
 };
 
 passport.use(discordStrategy);

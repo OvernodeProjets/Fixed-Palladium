@@ -836,6 +836,11 @@ select {
   grid-column: span 3 / span 3;
 }
 
+.-mx-4 {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
 .-my-2 {
   margin-top: -0.5rem;
   margin-bottom: -0.5rem;
@@ -848,6 +853,10 @@ select {
 
 .mb-12 {
   margin-bottom: 3rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
 .mb-4 {
@@ -1010,6 +1019,10 @@ select {
   flex-shrink: 0;
 }
 
+.list-disc {
+  list-style-type: disc;
+}
+
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
@@ -1020,6 +1033,10 @@ select {
 
 .flex-col {
   flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .items-center {
@@ -1182,6 +1199,11 @@ select {
   border-color: transparent;
 }
 
+.border-yellow-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(250 204 21 / var(--tw-border-opacity));
+}
+
 .bg-blue-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
@@ -1232,6 +1254,10 @@ select {
 
 .bg-transparent {
   background-color: transparent;
+}
+
+.bg-yellow-900\/50 {
+  background-color: rgb(113 63 18 / 0.5);
 }
 
 .p-3 {
@@ -1313,6 +1339,10 @@ select {
 
 .pb-6 {
   padding-bottom: 1.5rem;
+}
+
+.pl-6 {
+  padding-left: 1.5rem;
 }
 
 .pt-5 {
@@ -1452,6 +1482,16 @@ select {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-yellow-100 {
+  --tw-text-opacity: 1;
+  color: rgb(254 249 195 / var(--tw-text-opacity));
+}
+
+.text-yellow-400 {
+  --tw-text-opacity: 1;
+  color: rgb(250 204 21 / var(--tw-text-opacity));
+}
+
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -1498,6 +1538,10 @@ select {
 
 .hover\:bg-gray-700\/50:hover {
   background-color: rgb(55 65 81 / 0.5);
+}
+
+.hover\:bg-green-800\/50:hover {
+  background-color: rgb(22 101 52 / 0.5);
 }
 
 .hover\:text-blue-400:hover {
@@ -1654,6 +1698,10 @@ select {
     grid-column: span 2 / span 2;
   }
 
+  .md\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .md\:ml-6 {
     margin-left: 1.5rem;
   }
@@ -1678,8 +1726,16 @@ select {
     display: none;
   }
 
+  .md\:w-1\/2 {
+    width: 50%;
+  }
+
   .md\:w-64 {
     width: 16rem;
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .md\:grid-cols-3 {
