@@ -86,7 +86,7 @@ router.get('/store', ensureAuthenticated, async (req, res) => {
         admin: await db.get(`admin-${req.user.email}`), // Admin status
         name: process.env.APP_NAME, // App name
         resourceCosts: resourceCosts, // Cost Ressources
-        resourcePlans: resourcePlans
+        resourcePlans: resourcePlans // List plans
     });
 });
 
@@ -155,7 +155,6 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/buyplan', ensureAuthenticated, async (req, res) => {
-    console.log(plans)
     if (req.query.plan == undefined) return res.redirect('/store?err=MISSINGPARAMS');
 
     const planId = parseInt(req.query.plan);
@@ -189,7 +188,7 @@ router.get('/buyplan', ensureAuthenticated, async (req, res) => {
     // Set resources of plan
     const resources = selectedPlan.resources;
     for (const resource in resources) {
-        await db.set(`${resource}-${req.user.email}`, resources[resource])
+        await db.set(`${resource}-${req.user.email}`, resources[resource]);
     }
     return res.redirect('/store?success=BOUGHTPLAN');
 });

@@ -12,7 +12,7 @@ const pterodactyl = [{
   "key": process.env.PTERODACTYL_KEY
 }];
 
-// Load plans from plan.json
+// Load plans
 let plans = {};
 try {
   const data = fs.readFileSync('./storage/plans.json', 'utf8');
@@ -88,7 +88,7 @@ const existingResources = async (email) => {
   
 // Max resources (the ones the user has purchased or been given)
 const maxResources = async (email) => {
-  return {  
+  return {
     "cpu": await db.get(`cpu-${email}`),
     "ram": await db.get(`ram-${email}`),
     "disk": await db.get(`disk-${email}`),
