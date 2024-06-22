@@ -39,7 +39,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Require the routes
-
 let allRoutes = fs.readdirSync("./app");
 for(let i = 0; i < allRoutes.length; i++) {
   let route = require(`./app/${allRoutes[i]}`);

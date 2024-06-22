@@ -139,7 +139,6 @@ router.get('/reset', async (req, res) => {
   
       // Load credentials page
       res.redirect('/credentials');
-
     } catch (error) {
       // Handle error
       fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to reset password for a user. The panel did not respond correctly.' + '\n', function (err) {

@@ -43,7 +43,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
             // just fetch the first page, i will see that later
-            const response = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/nests/1/eggs?include=nest,variables`, {
+            const response = await axios.get(`${pterodactyl[0].url}/api/application/nests/1/eggs?include=nest,variables`, {
                 headers: {
                     'Authorization': `Bearer ${pterodactyl[0].key}`,
                     'Accept': 'application/json',
@@ -58,12 +58,13 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                 description: egg.attributes.description,
                 docker_image: egg.attributes.docker_image,
                 startup: egg.attributes.startup,
-                settings: {
-                    comment: "You'll need to modify the settings yourself, I'll edit for him to add them later. "
-                }
+                settings: egg.attributes.relationships.variables.data.map(variable => ({
+                    env_variable: variable.attributes.env_variable,
+                    default_value: variable.attributes.default_value
+                }))
             }));
 
-            let existingEggs = []
+            let existingEggs = [];
             try {
                 const existingEggsData = fs.readFileSync('storage/eggs.json');
                 existingEggs = JSON.parse(existingEggsData);
@@ -71,7 +72,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                 console.log("No existing eggs file found.");
             }
 
-            const allEggs = [...existingEggs, ...formattedEggs]
+            const allEggs = [...existingEggs, ...formattedEggs];
             fs.writeFileSync('storage/eggs.json', JSON.stringify(allEggs, null, 2));
 
             res.redirect('/admin?success=COMPLETE');

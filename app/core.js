@@ -43,7 +43,7 @@ async function getUserPlan(email) {
     await db.set(`plan-${email}`, plan);
   }
   return plan.toUpperCase();
-}
+};
 
 // Figure out how what the user's total resource usage is right now
 async function calculateResource(email, resource, isFeatureLimit = false) {
