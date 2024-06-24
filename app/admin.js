@@ -36,7 +36,7 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Scan eggs
+// Scan eggs & locations
 
 router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
@@ -78,6 +78,44 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
             res.redirect('/admin?success=COMPLETE');
         } catch (error) {
             console.error(`Error fetching eggs: ${error}`);
+            res.redirect('/admin?err=FETCH_FAILED');
+        }
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
+    if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            const response = await axios.get(`${pterodactyl[0].url}/api/application/locations`, {
+                headers: {
+                    'Authorization': `Bearer ${pterodactyl[0].key}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const locations = response.data.data;
+            const formattedLocations = locations.map(locations => ({
+                id: locations.attributes.id,
+                name: locations.attributes.short
+            }));
+
+            let existingLocations = [];
+            try {
+                const existingLocationsData = fs.readFileSync('storage/locations.json');
+                existingLocations = JSON.parse(existingLocationsData);
+            } catch (error) {
+                console.log("No existing locations file found.");
+            }
+
+            const allLocations = [...existingLocations, ...formattedLocations];
+            fs.writeFileSync('storage/locations.json', JSON.stringify(allLocations, null, 2));
+
+            res.redirect('/admin?success=COMPLETE');
+        } catch (error) {
+            console.error(`Error fetching locations: ${error}`);
             res.redirect('/admin?err=FETCH_FAILED');
         }
     } else {

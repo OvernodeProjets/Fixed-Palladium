@@ -23,7 +23,7 @@ const resourceCosts = {
     allocation: process.env.ALLOCATION_COST
 };
 
-let earners = {}
+let earners = {};
 
 // Afk
 

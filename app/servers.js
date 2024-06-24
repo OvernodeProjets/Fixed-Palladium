@@ -133,7 +133,7 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
   if (parseInt(req.query.cpu) < 10) return res.redirect('../create-server?err=INVALID');
   if (parseInt(req.query.disk) < 128) return res.redirect('../create-server?err=INVALID');
 
-    // Name checks
+  // Name checks
 
   if (req.query.name.length > 100) return res.redirect('../create-server?err=INVALID');
   if (req.query.name.length < 3) return res.redirect('../create-server?err=INVALID');
@@ -210,7 +210,8 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
       user: req.user, // User info (if logged in)
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       coins: await db.get(`coins-${req.user.email}`), // Coins,
-      eggs: require('../storage/eggs.json') // Eggs data
+      eggs: require('../storage/eggs.json'), // Eggs data
+      locations: require('../storage/locations.json')
     });
 });
 

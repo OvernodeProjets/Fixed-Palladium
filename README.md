@@ -78,6 +78,9 @@ server {
 }
 ```
 
+# Informations / Suggestions
+- We recommend using cloudflare and cloudflare proxy to avoid websocket vulnerabilities. 
+
 # Credit
 - [Palladium](https://github.com/PinePlatforms/Palladium)
 - [Palladium, fork by Ghostload74](https://github.com/Ghostload74/Palladium)
