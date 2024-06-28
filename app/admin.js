@@ -13,10 +13,20 @@ const pterodactyl = [{
 }];
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) return next();
-    
-    req.session.returnTo = req.originalUrl;
-    res.redirect('/');
+    if (req.isAuthenticated()) {
+        // Check if the user is banned
+        db.get(`banned-${req.user.email}`).then(reason => {
+            if (reason) return res.redirect(`/?err=BANNED&reason=${encodeURIComponent(reason)}`);
+
+            return next();
+        }).catch(err => {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
+        });
+    } else {
+        req.session.returnTo = req.originalUrl;
+        res.redirect('/');
+    }
 };
 
 // Admin
@@ -39,7 +49,7 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
 // Scan eggs & locations
 
 router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
-    if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
             // just fetch the first page, i will see that later
@@ -86,7 +96,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
-    if (!req.user || !req.user.email || req.user == undefined) return res.redirect('/login/discord');
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
             const response = await axios.get(`${pterodactyl[0].url}/api/application/locations`, {
@@ -128,10 +138,11 @@ router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
 router.get('/addcoins', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
-        
-        if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
-        let amount = parseInt((await db.get(`coins-${req.query.email}`))) + parseInt(req.query.amount);
-        await db.set(`coins-${req.query.email}`, amount);
+        const { email, amount } = req.query;
+    
+        if (!email || !amount) return res.redirect('/admin?err=INVALIDPARAMS');
+        let amountParse = parseInt((await db.get(`coins-${email}`))) + parseInt(amount);
+        await db.set(`coins-${email}`, amountParse);
         res.redirect('/admin?success=COMPLETE');
     } else {
         res.redirect('/dashboard');
@@ -141,10 +152,11 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
 router.get('/setcoins', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
+        const { email, amount } = req.query;
 
-        if(req.query.email == undefined || req.query.amount == undefined) return res.redirect('/admin?err=INVALIDPARAMS');
-        let amount = parseInt(req.query.amount);
-        await db.set(`coins-${req.query.email}`, amount);
+        if (!email || !amount) return res.redirect('/admin?err=INVALIDPARAMS');
+        let amountParse = parseInt(amount);
+        await db.set(`coins-${email}`, amountParse);
         res.redirect('/admin?success=COMPLETE');
     } else {
         res.redirect('/dashboard');
@@ -213,6 +225,34 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
         await db.set(`database-${email}`, databaseAmount);
 
         res.redirect('/admin?success=COMPLETE');
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+// Ban & Unban 
+
+router.get('/ban', ensureAuthenticated, async (req, res) => {
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        const { email, reason } = req.query;
+        if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
+        
+        await db.set(`banned-${email}`, reason);
+        res.redirect('/admin?success=BANNED');
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+router.get('/unban', ensureAuthenticated, async (req, res) => {
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        const { email } = req.query;
+        if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
+        
+        await db.delete(`banned-${email}`);
+        res.redirect('/admin?success=UNBANNED');
     } else {
         res.redirect('/dashboard');
     }

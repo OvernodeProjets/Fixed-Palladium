@@ -291,11 +291,12 @@
     </div>
   </div>
 
-      <div class="hidden sm:block" aria-hidden="true">
-        <div class="py-5">
-          <div class="border-t border-gray-700/75"></div>
-        </div>
-      </div>
+  <div class="hidden sm:block" aria-hidden="true">
+    <div class="py-5">
+      <div class="border-t border-gray-700/75"></div>
+    </div>
+  </div>
+
   <div class="flex flex-wrap -mx-4">
     <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
 
@@ -321,7 +322,72 @@
       </a>
     </div>
   </div>
-    <br /><br />
+  <br />
+  <div class="hidden sm:block" aria-hidden="true">
+    <div class="py-5">
+      <div class="border-t border-gray-700/75"></div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
+  
+      <h2 class="text-white font-bold">Ban User</h2>
+      <p class="text-gray-400">Ban a user by email</p>
+  
+      <br />
+  
+      <label for="ban-email" class="block text-sm font-medium text-gray-400">Email</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="ban-email" id="ban-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" required/>
+      </div>
+
+      <br />
+
+      <label for="ban-reason" class="block text-sm font-medium text-gray-400">Reason</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="ban-reason" id="ban-reason" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Enter the reason" />
+      </div>
+  
+      <br />
+  
+      <a onclick="ban()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Ban </a>
+  
+      <script>
+        async function ban() {
+          let email = encodeURIComponent(document.getElementById("ban-email").value);
+          let reason = encodeURIComponent(document.getElementById("ban-reason").value);
+          document.location.href = `/ban?email=${email}&reason=${reason}`;
+        };
+      </script>
+    </div>
+  
+    <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
+  
+      <h2 class="text-white font-bold">Unban User</h2>
+      <p class="text-gray-400">Unban a user by email</p>
+  
+      <br />
+  
+      <label for="unban-email" class="block text-sm font-medium text-gray-400">Email</label>
+      <div class="mt-1 flex rounded-md shadow-sm w-80">
+        <input type="text" name="unban-email" id="unban-email" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="example@example.com" required/>
+      </div>
+  
+      <br />
+  
+      <a onclick="unban()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Unban </a>
+  
+      <script>
+        async function unban() {
+          let email = encodeURIComponent(document.getElementById("unban-email").value);
+          document.location.href = `/unban?email=${email}`;
+        };
+      </script>
+    </div>
+  </div>  
+
+  <br /><br />
   </div>
   <br><br>
   <br>

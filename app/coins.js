@@ -8,10 +8,20 @@ const db = new Keyv(process.env.KEYV_URI);
 const router = express.Router();
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) return next();
-     
-    req.session.returnTo = req.originalUrl;
-    res.redirect('/');
+    if (req.isAuthenticated()) {
+        // Check if the user is banned
+        db.get(`banned-${req.user.email}`).then(reason => {
+            if (reason) return res.redirect(`/?err=BANNED&reason=${encodeURIComponent(reason)}`);
+
+            return next();
+        }).catch(err => {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
+        });
+    } else {
+        req.session.returnTo = req.originalUrl;
+        res.redirect('/');
+    }
 };
 
 const resourceCosts = {
@@ -91,7 +101,7 @@ router.get('/store', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/buyresource', ensureAuthenticated, async (req, res) => {
-    if (req.query.resource == undefined || req.query.amount == undefined) return res.redirect('/store?err=MISSINGPARAMS');
+    if (!req.query.resource || !req.query.amount) return res.redirect('/store?err=MISSINGPARAMS');
     
     // Ensure amount is a number and is below 10
     if (isNaN(req.query.amount) || req.query.amount > 10) return res.redirect('/store?err=INVALIDAMOUNT');
@@ -155,7 +165,7 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/buyplan', ensureAuthenticated, async (req, res) => {
-    if (req.query.plan == undefined) return res.redirect('/store?err=MISSINGPARAMS');
+    if (!req.query.plan) return res.redirect('/store?err=MISSINGPARAMS');
 
     const planId = parseInt(req.query.plan);
     if (isNaN(planId)) return res.redirect('/store?err=INVALIDPLAN');

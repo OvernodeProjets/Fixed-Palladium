@@ -69,10 +69,20 @@ const maxResources = async (email) => {
 // Decided not to use pterodactyl.* here
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) return next();
+  if (req.isAuthenticated()) {
+      // Check if the user is banned
+      db.get(`banned-${req.user.email}`).then(reason => {
+          if (reason) return res.redirect(`/?err=BANNED&reason=${encodeURIComponent(reason)}`);
 
-    req.session.returnTo = req.originalUrl;
-    res.redirect('/');
+          return next();
+      }).catch(err => {
+          console.error(err);
+          return res.status(500).send('Internal Server Error');
+      });
+  } else {
+      req.session.returnTo = req.originalUrl;
+      res.redirect('/');
+  }
 };
 
 // Delete server
@@ -209,9 +219,9 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
       name: process.env.APP_NAME, // Dashboard name
       user: req.user, // User info (if logged in)
       admin: await db.get(`admin-${req.user.email}`), // Admin status
-      coins: await db.get(`coins-${req.user.email}`), // Coins,
+      coins: await db.get(`coins-${req.user.email}`), // Coins
       eggs: require('../storage/eggs.json'), // Eggs data
-      locations: require('../storage/locations.json')
+      locations: require('../storage/locations.json') // Locations data
     });
 });
 
