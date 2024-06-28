@@ -68,10 +68,10 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                 description: egg.attributes.description,
                 docker_image: egg.attributes.docker_image,
                 startup: egg.attributes.startup,
-                settings: egg.attributes.relationships.variables.data.map(variable => ({
-                    env_variable: variable.attributes.env_variable,
-                    default_value: variable.attributes.default_value
-                }))
+                settings: egg.attributes.relationships.variables.data.reduce((acc, variable) => {
+                    acc[variable.attributes.env_variable] = variable.attributes.default_value;
+                    return acc;
+                }, {})
             }));
 
             let existingEggs = [];
