@@ -70,7 +70,7 @@ async function checkAccount(email, username, id) {
           userId = response.data.data[0].attributes.id;
           // Set password in the database & log to console
           db.set(`password-${email}`, password);
-          fs.appendFile(process.env.LOGS_PATH, '[LOG] User object created.\n', function (err) {
+          fs.appendFile(process.env.LOGS_PATH, '[LOG] User object created.\n', (err) => {
             if (err) console.log(`Failed to save log: ${err}`);
         });
       }
@@ -78,7 +78,7 @@ async function checkAccount(email, username, id) {
       // Set userID in the database
       await db.set(`id-${email}`, userId);
   } catch (error) {
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to check user information. The panel did not respond correctly.\n', function (err) {
+      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to check user information. The panel did not respond correctly.\n', (err) => {
           if (err) console.log(`Failed to save log: ${err}`);
       });
   }
@@ -95,7 +95,7 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-// Set up Discord routes
+// Setup Discord routes
 router.get('/login/discord', passport.authenticate('discord'), (req, res) => {
   res.redirect('/');
 });
@@ -133,7 +133,7 @@ router.get('/reset', async (req, res) => {
   
       // Update password in database
       db.set(`password-${req.user.email}`, password)
-      fs.appendFile(process.env.LOGS_PATH, '[LOG] Password resetted for user.' + '\n', function (err) {
+      fs.appendFile(process.env.LOGS_PATH, '[LOG] Password resetted for user.' + '\n', (err) => {
         if (err) console.log(`Failed to save log: ${err}`);
       });
   
@@ -141,7 +141,7 @@ router.get('/reset', async (req, res) => {
       res.redirect('/credentials');
     } catch (error) {
       // Handle error
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to reset password for a user. The panel did not respond correctly.' + '\n', function (err) {
+      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to reset password for a user. The panel did not respond correctly.' + '\n', (err) => {
         if (err) console.log(`Failed to save log: ${err}`);
       });
 
@@ -152,7 +152,7 @@ router.get('/reset', async (req, res) => {
     }
 });
 
-// Set up logout route
+// Setup logout route
 router.get('/logout', (req, res) => {
   req.logout((err)=>{});
   res.redirect('/');

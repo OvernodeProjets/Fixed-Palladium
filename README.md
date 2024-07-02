@@ -10,10 +10,10 @@ All features:
 - Coins (AFK Page earning)
 - Servers (create, view, edit servers)
 - User System (auth, regen password, etc)
-- OAuth2 (Google, Discord, etc)
+- OAuth2 (Discord)
 - Store (buy resources with coins)
 - Dashboard (view resources & servers)
-- Admin (set/add/remove coins)
+- Admin (set, add, remove coins/scan eggs & locations)
 
 <br>
 
@@ -32,7 +32,7 @@ All features:
 Warning: You need Pterodactyl already set up on a domain for Fixed-Palladium to work
 1. Upload the file above onto a Pterodactyl NodeJS server [Download the egg from Parkervcp's GitHub Repository](https://github.com/parkervcp/eggs/blob/master/generic/nodejs/egg-node-js-generic.json)
 2. Unarchive the file and set the server to use NodeJS 16
-3. Configure `.env`, `/resources/configuration/locations.ejs` & `/storage/eggs.json` & `/storage/plans.json`
+3. Configure `.env`, `/storage/eggs.json` & `/storage/plans.json` with the scan or manuel
 4. Run `npm i`
 5. Start the server with `node index.js`
 6. Login to your DNS manager, point the domain you want your dashboard to be hosted on to your VPS IP address. (Example: dashboard.domain.com 192.168.0.1)
@@ -84,4 +84,3 @@ server {
 # Credit
 - [Palladium](https://github.com/PinePlatforms/Palladium)
 - [Palladium, fork by Ghostload74](https://github.com/Ghostload74/Palladium)
-

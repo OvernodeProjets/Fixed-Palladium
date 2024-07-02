@@ -38,7 +38,7 @@ async function calculateResource(email, resource, isFeatureLimit = false) {
 
     return totalResources;
   } catch (error) {
-    fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', function (err) {
+    fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', (err) => {
       if (err) console.log(`Failed to save log: ${err}`);
     });
   }
@@ -111,10 +111,8 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
 
         res.redirect('/dashboard?success=DELETE');
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-            return res.redirect('../dashboard?err=NOTFOUND');
-        }
-
+        if (error.response && error.response.status === 404) return res.redirect('../dashboard?err=NOTFOUND');
+        
         console.error(error);
         res.redirect('../dashboard?err=INTERNALERROR');
     }

@@ -78,7 +78,7 @@ async function calculateResource(email, resource, isFeatureLimit = false) {
 
     return totalResources;
   } catch (error) {
-    fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', function (err) {
+    fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to calculate resources of all servers combined.' + '\n', (err) => {
       if (err) console.log(`Failed to save log: ${err}`);
     });
   }
