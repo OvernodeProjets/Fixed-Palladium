@@ -9,19 +9,18 @@ const db = new Keyv(process.env.KEYV_URI);
 const router = express.Router();
 
 // Resources
-
-const pterodactyl = [{
-  "url": process.env.PTERODACTYL_URL, 
-  "key": process.env.PTERODACTYL_KEY
-}];
+const pterodactyl = {
+  url: process.env.PTERODACTYL_URL,
+  key: process.env.PTERODACTYL_KEY
+};
 
 // Figure out how what the user's total resource usage is right now
 async function calculateResource(email, resource, isFeatureLimit = false) {
   try {
     // Get user's servers
-    const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
+    const response = await axios.get(`${pterodactyl.url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
       headers: {
-        'Authorization': `Bearer ${pterodactyl[0].key}`,
+        'Authorization': `Bearer ${pterodactyl.key}`,
         'Accept': 'Application/vnd.pterodactyl.v1+json'
       }
     });
@@ -67,7 +66,6 @@ const maxResources = async (email) => {
 };
 
 // Decided not to use pterodactyl.* here
-
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
       // Check if the user is banned
@@ -93,18 +91,18 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
         const userId = await db.get(`id-${req.user.email}`);
         const serverId = req.query.id;
 
-        const server = await axios.get(`${process.env.PTERODACTYL_URL}/api/application/servers/${serverId}`, {
+        const server = await axios.get(`${pterodactyl.url}/api/application/servers/${serverId}`, {
             headers: {
-                'Authorization': `Bearer ${process.env.PTERODACTYL_KEY}`,
+                'Authorization': `Bearer ${pterodactyl.key}`,
                 'Accept': 'application/json'
             }
         });
 
         if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
 
-        await axios.delete(`${process.env.PTERODACTYL_URL}/api/application/servers/${serverId}`, {
+        await axios.delete(`${pterodactyl.url}/api/application/servers/${serverId}`, {
             headers: {
-                'Authorization': `Bearer ${process.env.PTERODACTYL_KEY}`,
+                'Authorization': `Bearer ${pterodactyl.key}`,
                 'Accept': 'application/json'
             }
         });
@@ -124,7 +122,6 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
   if (!req.query.name || !req.query.location || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup || !req.query.allocation) return res.redirect('../create-server?err=MISSINGPARAMS');
   
   // Check if user has enough resources to create a server
-
   const max = await maxResources(req.user.email);
   const existing = await existingResources(req.user.email);
 
@@ -136,18 +133,15 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
   if (parseInt(req.query.allocation) > parseInt(max.allocation - existing.allocation)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
 
   // Ensure resources are above 128MB / 10%
-
   if (parseInt(req.query.ram) < 128) return res.redirect('../create-server?err=INVALID');
   if (parseInt(req.query.cpu) < 10) return res.redirect('../create-server?err=INVALID');
   if (parseInt(req.query.disk) < 128) return res.redirect('../create-server?err=INVALID');
 
   // Name checks
-
   if (req.query.name.length > 100) return res.redirect('../create-server?err=INVALID');
   if (req.query.name.length < 3) return res.redirect('../create-server?err=INVALID');
 
   // Make sure locations, eggs, resources are numbers
-
   if (isNaN(req.query.location) || isNaN(req.query.egg) || isNaN(req.query.cpu) || isNaN(req.query.ram) || isNaN(req.query.disk) || isNaN(req.query.database) || isNaN(req.query.backup) || isNaN(req.query.allocation)) return res.redirect('../create-server?err=INVALID');
   if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../create-server?err=INVALID');
 
@@ -171,7 +165,7 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
       const startupCommand = egg.startup;
       const environment = egg.settings;
 
-      await axios.post(`${process.env.PTERODACTYL_URL}/api/application/servers`, {
+      await axios.post(`${pterodactyl.url}/api/application/servers`, {
           name: name,
           user: userId,
           egg: eggId,
@@ -199,7 +193,7 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
           headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': `Bearer ${process.env.PTERODACTYL_KEY}`
+              'Authorization': `Bearer ${pterodactyl.key}`
           }
       });
 
@@ -220,6 +214,104 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
       coins: await db.get(`coins-${req.user.email}`), // Coins
       eggs: require('../storage/eggs.json'), // Eggs data
       locations: require('../storage/locations.json') // Locations data
+    });
+});
+
+// Edit server
+router.get('/edit', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.query.id || !req.query.name || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup || !req.query.allocation) return res.redirect(`../edit-server?id=${req.query.id}&err=MISSINGPARAMS`);
+  try {
+      const userId = await db.get(`id-${req.user.email}`);
+      const serverId = req.query.id;
+      const server = await axios.get(`${pterodactyl.url}/api/application/servers/${serverId}`, {
+          headers: {
+              'Authorization': `Bearer ${pterodactyl.key}`,
+              'Accept': 'application/json'
+          }
+      });
+      if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
+
+      // Check if user has enough resources to create a server
+      const max = await maxResources(req.user.email);
+      
+      if (parseInt(req.query.cpu, 10) > max.cpu) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      if (parseInt(req.query.ram, 10) > max.ram) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      if (parseInt(req.query.disk, 10) > max.disk) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      if (parseInt(req.query.database, 10) > max.database) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      if (parseInt(req.query.backup, 10) > max.backup) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      if (parseInt(req.query.allocation, 10) > max.allocation) return res.redirect(`../edit-server?id=${req.query.id}&err=NOTENOUGHRESOURCES`);
+      
+      // Ensure resources are above 128MB / 10%
+      if (parseInt(req.query.ram) < 128) return res.redirect('../edit-server?err=INVALID');
+      if (parseInt(req.query.cpu) < 10) return res.redirect('../edit-server?err=INVALID');
+      if (parseInt(req.query.disk) < 128) return res.redirect('../edit-server?err=INVALID');
+
+      // Name checks
+      if (req.query.name.length > 100) return res.redirect('../edit-server?err=INVALID');
+      if (req.query.name.length < 3) return res.redirect('../edit-server?err=INVALID');
+      
+      // Make sure eggs, resources are numbers
+      if (isNaN(req.query.egg) || isNaN(req.query.cpu) || isNaN(req.query.ram) || isNaN(req.query.disk) || isNaN(req.query.database) || isNaN(req.query.backup) || isNaN(req.query.allocation)) return res.redirect('../edit?err=INVALID');
+      if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../edit-server?err=INVALID');
+
+      const reponseServer = await axios.get(`${pterodactyl.url}/api/application/servers/${serverId}`, {
+        headers: {
+          'Authorization': `Bearer ${pterodactyl.key}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const patchData = {
+        allocation: reponseServer.data.attributes.allocation,
+        memory: parseInt(req.query.ram),
+        swap: -1,
+        io: 500,
+        cpu: parseInt(req.query.cpu),
+        disk: parseInt(req.query.disk),
+        threads: null,
+        feature_limits: {
+          databases: parseInt(req.query.database),
+          allocations: parseInt(req.query.allocation),
+          backups: parseInt(req.query.backup)
+        }
+      };
+      await axios.patch(`${pterodactyl.url}/api/application/servers/${serverId}/build`, patchData, {
+        headers: {
+          'Authorization': `Bearer ${pterodactyl.key}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      res.redirect('/dashboard?success=EDIT');
+  } catch (error) {
+    if (error.response.status === 404) return res.redirect('../dashboard?err=NOTFOUND');
+    
+    console.error(error.message);
+    res.redirect('../dashboard?err=INTERNALERROR');
+  }
+});
+
+router.get('/edit-server', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.query.id) return res.redirect('/dashboard?err=a');
+      const userId = await db.get(`id-${req.user.email}`);
+      const server = await axios.get(`${pterodactyl.url}/api/application/servers/${req.query.id}`, {
+        headers: {    
+        'Authorization': `Bearer ${pterodactyl.key}`,
+        'Accept': 'application/json'
+        }
+    });
+    if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
+    res.render('edit', {
+      req: req, // Requests (queries) 
+      name: process.env.APP_NAME, // Dashboard name
+      user: req.user, // User info (if logged in)
+      server: server.data.attributes, // Server the user owns
+      admin: await db.get(`admin-${req.user.email}`), // Admin status
+      coins: await db.get(`coins-${req.user.email}`), // Coins
+      eggs: require('../storage/eggs.json') // Eggs data
     });
 });
 

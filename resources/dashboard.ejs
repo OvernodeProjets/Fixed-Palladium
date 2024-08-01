@@ -257,6 +257,7 @@
                             <td class="px-12 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.feature_limits.allocations %></td>
                             <td class="px-11 py-4 whitespace-nowrap text-sm text-gray-400"><%= server.attributes.feature_limits.backups %></td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <a href="../edit-server?id=<%= server.attributes.id %>" class="text-gray-400 hover:text-gray-500">Edit</a>
                               <a href="../delete?id=<%= server.attributes.id %>" class="text-red-300 hover:text-red-400">Delete</a>
                             </td>
                           </tr>

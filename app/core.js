@@ -7,10 +7,10 @@ const db = new Keyv(process.env.KEYV_URI);
 
 const router = express.Router();
 
-const pterodactyl = [{
-  "url": process.env.PTERODACTYL_URL, 
-  "key": process.env.PTERODACTYL_KEY
-}];
+const pterodactyl = {
+  url: process.env.PTERODACTYL_URL,
+  key: process.env.PTERODACTYL_KEY
+};
 
 // Load plans
 let plans = {};
@@ -45,7 +45,6 @@ async function checkPassword(email) {
 };
 
 // Resources
-
 async function getUserPlan(email) {
   let plan = await db.get(`plan-${email}`);
   if (!plan) {
@@ -59,9 +58,9 @@ async function getUserPlan(email) {
 async function calculateResource(email, resource, isFeatureLimit = false) {
   try {
     // Get user's servers
-    const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
+    const response = await axios.get(`${pterodactyl.url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(email)}`, {
       headers: {
-        'Authorization': `Bearer ${pterodactyl[0].key}`,
+        'Authorization': `Bearer ${pterodactyl.key}`,
         'Accept': 'Application/vnd.pterodactyl.v1+json'
       }
     });
@@ -150,7 +149,6 @@ async function ensureResourcesExist(email) {
 };
 
 // Pages / Routes
-
 router.get('/', (req, res) => {
   res.render('index', {
     req: req, // Requests (queries) 
@@ -160,13 +158,12 @@ router.get('/', (req, res) => {
 });
 
 // Dashboard
-
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
   try {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
-    const response = await axios.get(`${pterodactyl[0].url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(req.user.email)}`, {
+    const response = await axios.get(`${pterodactyl.url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(req.user.email)}`, {
       headers: {
-        'Authorization': `Bearer ${pterodactyl[0].key}`,
+        'Authorization': `Bearer ${pterodactyl.key}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       }
@@ -196,7 +193,6 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
 });
 
 // Credentials
-  
 router.get('/credentials', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
   res.render('credentials', { 
@@ -210,13 +206,11 @@ router.get('/credentials', ensureAuthenticated, async (req, res) => {
 });
 
 // Panel
-
 router.get('/panel', (req, res) => {
-  res.redirect(`${process.env.PTERODACTYL_URL}/auth/login`);
+  res.redirect(`${pterodactyl.url}/auth/login`);
 });
 
 // Assets
-
 router.use('/public', express.static('public'));
 
 module.exports = router;

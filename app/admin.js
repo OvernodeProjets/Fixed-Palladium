@@ -7,10 +7,10 @@ const db = new Keyv(process.env.KEYV_URI);
 
 const router = express.Router();
 
-const pterodactyl = [{
-    "url": process.env.PTERODACTYL_URL, 
-    "key": process.env.PTERODACTYL_KEY
-}];
+const pterodactyl = {
+    url: process.env.PTERODACTYL_URL,
+    key: process.env.PTERODACTYL_KEY
+  };
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -53,9 +53,9 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
             // just fetch the first page, i will see that later
-            const response = await axios.get(`${pterodactyl[0].url}/api/application/nests/1/eggs?include=nest,variables`, {
+            const response = await axios.get(`${pterodactyl.url}/api/application/nests/1/eggs?include=nest,variables`, {
                 headers: {
-                    'Authorization': `Bearer ${pterodactyl[0].key}`,
+                    'Authorization': `Bearer ${pterodactyl.key}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 }
@@ -99,9 +99,9 @@ router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            const response = await axios.get(`${pterodactyl[0].url}/api/application/locations`, {
+            const response = await axios.get(`${pterodactyl.url}/api/application/locations`, {
                 headers: {
-                    'Authorization': `Bearer ${pterodactyl[0].key}`,
+                    'Authorization': `Bearer ${pterodactyl.key}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 }
