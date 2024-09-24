@@ -6,23 +6,18 @@
 # Fixed-Palladium
 
 All features:
-- Resource Management (Use it to create servers, gift them, etc)
+- Resource Management (Use it to create servers, etc)
 - Coins (AFK Page earning)
-- Servers (create, view, edit servers)
-- User System (auth, regen password, etc)
-- OAuth2 (Discord)
-- Store (buy resources with coins)
-- Dashboard (view resources & servers)
-- Admin (set, add, remove coins/scan eggs & locations)
+- Servers (Create, View, Edit servers)
+- User System (Auth, Regen password, etc)
+- OAuth2 (Discord, local auth)
+- Store (Buy resources with coins)
+- Dashboard (View resources & Servers)
+- Admin (Set, Add, Remove coins, Scan eggs & locations)
 
 <br>
 
 | :exclamation:  This is an extremely early version of Fixed-Palladium and doesn't have all of features we want to add yet                                   |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|
-
-<br>
-
-| :warning:  Fixed-Palladium currently doesn't encrypt user passwords. This will be fixed in 1.0.1, but for now, just don't leak your database.sqlite.       |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 <hr>
