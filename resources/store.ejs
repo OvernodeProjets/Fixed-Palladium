@@ -1,48 +1,104 @@
 <%- include('./components/wrapper') %>
-
-        <main class="flex-1 bg-gray-800">
-          <div class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <!-- Content -->
-              <% if (req.query.success == "BOUGHTRESOURCE") { %>
-              <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
+  <main class="flex-1 bg-gray-800">
+    <div class="py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <!-- Content -->
+        <% if (req.query.success == "BOUGHTRESOURCE") { %>
+        <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
+          <div class="flex">
+            <div class="py-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Purchase Successful</p>
+              <p class="text-sm relative">The resources have been added to your account.</p>
+            </div>
+            <span onclick="location.href = '../store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <% } %> <% if (req.query.err == "NOTENOUGHCOINS") { %>
+        <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative" role="alert">
+          <div class="flex">
+            <div class="py-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Insufficient Balance</p>
+              <p class="text-sm relative">You do not have enough coins to complete this purchase.</p>
+            </div>
+            <span onclick="location.href = '../store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <% } else if (req.query.err == "INVALIDAMOUNT") { %>
+          <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
+            <div class="flex">
+              <div class="py-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-bold">Invalid Amount</p>
+                <p class="text-sm relative">The amount entered is invalid. Please check and try again.</p>
+              </div>
+              <span onclick="location.href = '../admin';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <% } else if (req.query.success == "BOUGHTPLAN") { %>
+            <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative mb-8" role="alert">
+              <div class="flex">
+                <div class="py-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">Plan Purchased Successfully</p>
+                  <p class="text-sm relative">You have successfully purchased the plan.</p>
+                </div>
+                <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <% } else if (req.query.err == "ALREADYPLAN") { %>
+              <div class="bg-yellow-900/50 border-l-4 border-yellow-400 rounded-lg text-yellow-100 px-4 py-3 relative mb-8" role="alert">
                 <div class="flex">
                   <div class="py-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400 mr-3">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                   <div>
-                    <p class="font-bold">Purchase Successful</p>
-                    <p class="text-sm relative">The resources have been added to your account.</p>
+                    <p class="font-bold">Plan Already Purchased</p>
+                    <p class="text-sm relative">You already have this plan.</p>
                   </div>
-                  <span onclick="location.href = '../store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                  <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </span>
                 </div>
               </div>
-              <% } %> <% if (req.query.err == "NOTENOUGHCOINS") { %>
-              <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative" role="alert">
-                <div class="flex">
-                  <div class="py-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-bold">Insufficient Balance</p>
-                    <p class="text-sm relative">You do not have enough coins to complete this purchase.</p>
-                  </div>
-                  <span onclick="location.href = '../store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              <% } else if (req.query.err == "INVALIDAMOUNT") { %>
+              <% } else if (req.query.err == "INVALIDPLAN") { %>
                 <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
                   <div class="flex">
                     <div class="py-1">
@@ -51,217 +107,157 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="font-bold">Invalid Amount</p>
-                      <p class="text-sm relative">The amount entered is invalid. Please check and try again.</p>
+                      <p class="font-bold">Invalid Plan</p>
+                      <p class="text-sm relative">The plan you selected is not valid. Please choose a valid plan.</p>
                     </div>
-                    <span onclick="location.href = '../admin';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </span>
                   </div>
                 </div>
-                <% } else if (req.query.success == "BOUGHTPLAN") { %>
-                  <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative mb-8" role="alert">
-                    <div class="flex">
-                      <div class="py-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p class="font-bold">Plan Purchased Successfully</p>
-                        <p class="text-sm relative">You have successfully purchased the plan.</p>
-                      </div>
-                      <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    </div>
+              <% } %>
+                
+        <!-- Resource Plans -->
+        <h2 class="text-white font-bold">Plans</h2>
+        <p class="text-gray-400">Upgrade your plans to get more resources</p>
+               
+        <div class="relative bg-transparent">
+          <div class="relative max-w-7xl mx-auto">
+            <div class="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              
+              <% resourcePlans.forEach(plan => { %>
+              <div class="flex flex-col rounded-lg shadow overflow-hidden bg-gray-700/50">
+                <div class="p-6 flex flex-col justify-between flex-1">
+                  <div>
+                    <h3 class="text-xl font-semibold text-white mb-4"><%= plan.name %></h3>
+                    <p class="text-base text-gray-300 mb-2"><%= plan.price %> coins</p>
+                    <p class="text-base text-gray-300 mb-2">Resources:</p>
+                    <ul class="text-base text-gray-300 list-disc pl-6">
+                      <li><%= plan.resources.cpu %> CPU</li>
+                      <li><%= plan.resources.ram %> MB RAM</li>
+                      <li><%= plan.resources.disk %> MB Disk</li>
+                      <li><%= plan.resources.backup %> Backups</li>
+                      <li><%= plan.resources.database %> Databases</li>
+                      <li><%= plan.resources.allocation %> Allocations</li>
+                    </ul>
                   </div>
-                  <% } else if (req.query.err == "ALREADYPLAN") { %>
-                    <div class="bg-yellow-900/50 border-l-4 border-yellow-400 rounded-lg text-yellow-100 px-4 py-3 relative mb-8" role="alert">
-                      <div class="flex">
-                        <div class="py-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400 mr-3">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p class="font-bold">Plan Already Purchased</p>
-                          <p class="text-sm relative">You already have this plan.</p>
-                        </div>
-                        <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                    <% } else if (req.query.err == "INVALIDPLAN") { %>
-                      <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
-                        <div class="flex">
-                          <div class="py-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p class="font-bold">Invalid Plan</p>
-                            <p class="text-sm relative">The plan you selected is not valid. Please choose a valid plan.</p>
-                          </div>
-                          <span onclick="location.href = '/store';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </span>
-                        </div>
-                      </div>
-                    <% } %>
-
-              <!-- Resource Plans -->
-              <h2 class="text-white font-bold">Plans</h2>
-              <p class="text-gray-400">Upgrade your plans to get more resources</p>
-
-              <div class="relative bg-transparent">
-                <div class="relative max-w-7xl mx-auto">
-                  <div class="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  
-                    <% resourcePlans.forEach(plan => { %>
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden bg-gray-700/50">
-                      <div class="p-6 flex flex-col justify-between flex-1">
-                        <div>
-                          <h3 class="text-xl font-semibold text-white mb-4"><%= plan.name %></h3>
-                          <p class="text-base text-gray-300 mb-2"><%= plan.price %> coins</p>
-                          <p class="text-base text-gray-300 mb-2">Resources:</p>
-                          <ul class="text-base text-gray-300 list-disc pl-6">
-                            <li><%= plan.resources.cpu %> CPU</li>
-                            <li><%= plan.resources.ram %> MB RAM</li>
-                            <li><%= plan.resources.disk %> MB Disk</li>
-                            <li><%= plan.resources.backup %> Backups</li>
-                            <li><%= plan.resources.database %> Databases</li>
-                            <li><%= plan.resources.allocation %> Allocations</li>
-                          </ul>
-                        </div>
-                        <% if (plan.hasPlan) { %>
-                          <a class="mt-4 transition ease-in-out delay-100 group relative flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-green-400 bg-green-900/50 border-green-400 hover:bg-green-800/50 focus:outline-none">
-                            You already have this plan 
-                        <% } else { %>
-                        <a href="../buyplan?plan=<%= plan.id %>" class="mt-4 transition ease-in-out delay-100 group relative flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none">
-                          Purchase
-                        <% } %>
-                        </a>
-                      </div>
-                    </div>
-                    <% }) %>
-                  
-                  </div>
+                  <% if (plan.hasPlan) { %>
+                    <a class="mt-4 transition ease-in-out delay-100 group relative flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-green-400 bg-green-900/50 border-green-400 hover:bg-green-800/50 focus:outline-none">
+                      You already have this plan 
+                  <% } else { %>
+                  <a href="../buyplan?plan=<%= plan.id %>" class="mt-4 transition ease-in-out delay-100 group relative flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none">
+                    Purchase
+                  <% } %>
+                  </a>
                 </div>
               </div>
-
-              <br />
-
-              <div class="hidden sm:block" aria-hidden="true">
-                <div class="py-5">
-                  <div class="border-t border-gray-700/75"></div>
-                </div>
-              </div>
-
-              <!-- This example requires Tailwind CSS v2.0+ -->
-              <h2 class="text-white font-bold">Buy extra</h2>
-              <p class="text-gray-400">Buy extra if you want additional resources</p>
-              <div class="relative bg-transparent">
-                <div class="relative max-w-7xl mx-auto">
-                  <div class="mt-6 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra CPU</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 100%</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.cpu %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=cpu&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1 mb-4">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra RAM</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 1024MB</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.ram %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=ram&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra Disk</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 1024MB</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.disk %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=disk&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra Backup</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 1</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.backup %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=backup&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra Database</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 1</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.database %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=database&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col rounded-lg shadow overflow-hidden">
-                      <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
-                        <div class="flex-1">
-                          <a href="#" class="block mt-2">
-                            <p class="text-xl font-semibold text-white">Buy extra Allocation</p>
-                            <p class="mt-3 text-base text-gray-300">Amount: 1</p>
-                            <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.allocation %> coins</p>
-                          </a>
-                        </div>
-                        <a href="../buyresource?resource=allocation&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
+              <% }) %>
+            
             </div>
           </div>
-          <br><br>
-          <br><br>
-        </main>
+        </div>
+        
+        <br />
+               
+        <div class="hidden sm:block" aria-hidden="true">
+          <div class="py-5">
+            <div class="border-t border-gray-700/75"></div>
+          </div>
+        </div>
+               
+        <!-- This example requires Tailwind CSS v2.0+ -->
+        <h2 class="text-white font-bold">Buy extra</h2>
+        <p class="text-gray-400">Buy extra if you want additional resources</p>
+        <div class="relative bg-transparent">
+          <div class="relative max-w-7xl mx-auto">
+            <div class="mt-6 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra CPU</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 100%</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.cpu %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=cpu&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1 mb-4">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra RAM</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 1024MB</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.ram %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=ram&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra Disk</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 1024MB</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.disk %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=disk&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra Backup</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 1</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.backup %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=backup&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra Database</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 1</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.database %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=database&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+              <div class="flex flex-col rounded-lg shadow overflow-hidden">
+                <div class="flex-1 bg-gray-700/50 p-6 flex flex-col justify-between">
+                  <div class="flex-1">
+                    <a href="#" class="block mt-2">
+                      <p class="text-xl font-semibold text-white">Buy extra Allocation</p>
+                      <p class="mt-3 text-base text-gray-300">Amount: 1</p>
+                      <p class="mt-3 text-base text-gray-300">Cost: <%= resourceCosts.allocation %> coins</p>
+                    </a>
+                  </div>
+                  <a href="../buyresource?resource=allocation&amount=1" type="button" class="mt-4 transition ease-in-out delay-100 group relative flex w-1/4 justify-center rounded-md border border-transparent bg-blue-500 py-2 px-4 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none"> Purchase </a>
+                </div>
+              </div>
+               
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
+    <br><br>
+    <br><br>
+  </main>
 <%- include('./components/footer') %>

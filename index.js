@@ -1,5 +1,13 @@
+require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
+const app = express();
+
+const expressWs = require('express-ws')(app);
+const rateLimit = require('express-rate-limit');
+const minifyHTML = require('express-minify-html');
+
 const fs = require('fs');
 const passport = require('passport');
 const ejs = require('ejs');
@@ -7,14 +15,9 @@ const path = require('path');
 const axios = require('axios');
 const ipaddr = require('ipaddr.js');
 const requestIp = require('request-ip');
+const cache = new Map();
 
-require('dotenv').config();
-
-const app = express();
-const expressWs = require('express-ws')(app);
-
-const Keyv = require('keyv');
-const db = new Keyv(process.env.KEYV_URI);
+const db = require('./handlers/db');
 
 // Add admin users
 if (!process.env.ADMIN_USERS) {
@@ -26,11 +29,26 @@ if (!process.env.ADMIN_USERS) {
   }
 }
 
-// Set up ejs as the view engine
+// Setup ejs as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/resources'));
 
-// Set up session middleware
+// Setup rateLimit
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  handler: function (req, res) {
+    res.status(429).json({
+      error: 'Too many requests, please try again later.'
+    });
+  }
+}));
+
+// Parsing query data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Setup session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -44,27 +62,74 @@ app.use(passport.session());
 // IP middleware
 app.use(requestIp.mw());
 
-// VPN detection middleware
-app.use(async (req, res, next) => {
-  const ipAddress = req.clientIp;
+// Optimization
+app.set('view cache', true);
+app.use(minifyHTML({
+    override: true,
+    exception_url: false,
+    htmlMinifier: {
+        removeComments: true,
+        collapseWhitespace: true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes: true,
+        removeEmptyAttributes: true,
+        minifyJS: true, 
+        minifyCSS: true 
+    }
+}));
 
-  if (!ipaddr.isValid(ipAddress)) {
-    console.error(`Invalid IP Address: ${ipAddress}`);
-    return res.status(400).json('Invalid IP address format.');
-  }
-
-  const userIp = ipaddr.process(ipAddress).toString();
-
-  const proxycheck_key = process.env.PROXYCHECK_KEY;
-  const proxyResponse = await axios.get(`http://proxycheck.io/v2/${userIp}?key=${proxycheck_key}`);
-  const proxyData = proxyResponse.data;
-
-  if (proxyData[userIp] && proxyData[userIp].proxy === 'yes') {
-    return res.status(403).json('It seems we have detected a proxy/VPN enabled on your end, please turn it off to continue.');
-  }
-
+// Custom Header
+app.use((req, res, next) => {
+  res.setHeader("X-Powered-By", "6th Gen Palladium || 1th Gen Fixed-Palladium");
   next();
 });
+
+// VPN detection middleware
+app.use(async (req, res, next) => {
+  if (process.env.PROXYCHECK_KEY && process.env.PROXYCHECK_KEY !== "0000000000000000000000000000") {
+    try {
+      const ipAddress = req.clientIp;
+    
+      if (!ipaddr.isValid(ipAddress)) {
+        console.error(`Invalid IP Address: ${ipAddress}`);
+        return res.status(400).json('Invalid IP address format.');
+      }
+    
+      const userIp = ipaddr.process(ipAddress).toString();
+    
+      if (userIp === '127.0.0.1' || userIp.startsWith('192.168') || userIp.startsWith('10.')) {
+        return next();
+      }
+    
+      if (cache.has(userIp)) {
+        const proxyData = cache.get(userIp);
+        if (proxyData.proxy === 'yes') {
+          return res.status(403).json('It seems we have detected a proxy/VPN enabled on your end, please turn it off to continue.');
+        }
+        return next();
+      }
+    
+      const proxycheck_key = process.env.PROXYCHECK_KEY;
+    
+      const proxyResponse = await axios.get(`http://proxycheck.io/v2/${userIp}?key=${proxycheck_key}`);
+      const proxyData = proxyResponse.data[userIp];
+    
+      cache.set(userIp, proxyData);
+      setTimeout(() => cache.delete(userIp), 600000);
+    
+      if (proxyData.proxy === 'yes') {
+        return res.status(403).json('It seems we have detected a proxy/VPN enabled on your end, please turn it off to continue.');
+      }
+    
+      next();
+    } catch (error) {
+      console.error('Error in IP check middleware:', error);
+      res.status(500).json('Internal server error.');
+    }
+} else {
+  next();
+}});
+
 
 // Require the routes
 let allRoutes = fs.readdirSync('./app');
@@ -75,7 +140,9 @@ for (let i = 0; i < allRoutes.length; i++) {
 }
 
 // Serve static files (after VPN detection)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d' // Cache static assets for 1 day
+}));
 
 // Start the server
 app.listen(process.env.APP_PORT || 3000, () => {

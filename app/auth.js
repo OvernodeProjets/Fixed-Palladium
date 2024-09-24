@@ -1,39 +1,36 @@
+require('dotenv').config();
+
 const express = require('express');
+const router = express.Router();
+
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord');
 const axios = require('axios');
-const fs = require('fs');
-require('dotenv').config();
 
-const Keyv = require('keyv');
-const db = new Keyv(process.env.KEYV_URI);
+const db = require('../handlers/db');
+const { log, logError } = require('../handlers/logs');
 
-var randomstring = require("randomstring");
-
-const pterodactyl = {
-  url: process.env.PTERODACTYL_URL,
-  key: process.env.PTERODACTYL_KEY
+const provider = {
+  url: process.env.PROVIDER_URL,
+  key: process.env.PROVIDER_KEY
 };
 
-const router = express.Router();
-
-// Configure passport to use Discord
-const discordStrategy = new DiscordStrategy({
-  clientID: process.env.DISCORD_CLIENT_ID,
-  clientSecret: process.env.DISCORD_CLIENT_SECRET,
-  callbackURL: process.env.DISCORD_CALLBACK_URL,
-  scope: ['identify', 'email']
-}, (accessToken, refreshToken, profile, done) => {
-  return done(null, profile);
-});
+function generateRandomString(length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
 // Pterodactyl account system
 async function checkAccount(email, username, id) {
   try {
       // Check if user has an account
-      let response = await axios.get(`${pterodactyl.url}/api/application/users?filter[email]=${email}`, {
+      let response = await axios.get(`${provider.url}/api/application/users?filter[email]=${email}`, {
           headers: {
-              'Authorization': `Bearer ${pterodactyl.key}`,
+              'Authorization': `Bearer ${provider.key}`,
               'Content-Type': 'application/json',
               'Accept': 'Application/vnd.pterodactyl.v1+json'
           }
@@ -44,8 +41,8 @@ async function checkAccount(email, username, id) {
           userId = response.data.data[0].attributes.id;
       } else {
           // If not, create one
-          let password = randomstring.generate(process.env.PASSWORD_LENGTH);
-          response = await axios.post(`${pterodactyl.url}/api/application/users`, {
+          let password = generateRandomString(process.env.PASSWORD_LENGTH);
+          response = await axios.post(`${provider.url}/api/application/users`, {
               'email': email,
               'username': username,
               "first_name": id,
@@ -53,16 +50,16 @@ async function checkAccount(email, username, id) {
               'password': password
           }, {
               headers: {
-                  'Authorization': `Bearer ${pterodactyl.key}`,
+                  'Authorization': `Bearer ${provider.key}`,
                   'Content-Type': 'application/json',
                   'Accept': 'Application/vnd.pterodactyl.v1+json'
               }
           });
 
           // Fetch the user's ID
-          response = await axios.get(`${pterodactyl.url}/api/application/users?filter[email]=${email}`, {
+          response = await axios.get(`${provider.url}/api/application/users?filter[email]=${email}`, {
               headers: {
-                  'Authorization': `Bearer ${pterodactyl.key}`,
+                  'Authorization': `Bearer ${provider.key}`,
                   'Content-Type': 'application/json',
                   'Accept': 'Application/vnd.pterodactyl.v1+json'
               }
@@ -70,21 +67,26 @@ async function checkAccount(email, username, id) {
           userId = response.data.data[0].attributes.id;
           // Set password in the database & log to console
           db.set(`password-${email}`, password);
-          fs.appendFile(process.env.LOGS_PATH, '[LOG] User object created.\n', (err) => {
-            if (err) console.log(`Failed to save log: ${err}`);
-        });
+          log('User object created.');
       }
 
       // Set userID in the database
       await db.set(`id-${email}`, userId);
   } catch (error) {
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to check user information. The panel did not respond correctly.\n', (err) => {
-          if (err) console.log(`Failed to save log: ${err}`);
-      });
+      logError('Failed to check user information. The panel did not respond correctly.');
+      res.redirect('/?err=INTERNALERROR');
   }
 };
 
-passport.use(discordStrategy);
+// Configure passport to use Discord
+passport.use(new DiscordStrategy({
+  clientID: process.env.DISCORD_CLIENT_ID,
+  clientSecret: process.env.DISCORD_CLIENT_SECRET,
+  callbackURL: process.env.DISCORD_CALLBACK_URL,
+  scope: ['identify', 'email']
+}, (accessToken, refreshToken, profile, done) => {
+  return done(null, profile);
+}));
 
 // Serialize and deserialize user
 passport.serializeUser((user, done) => {
@@ -96,27 +98,23 @@ passport.deserializeUser((user, done) => {
 });
 
 // Setup Discord routes
-router.get('/login/discord', passport.authenticate('discord'), (req, res) => {
-  res.redirect('/');
-});
+router.get('/login/discord', passport.authenticate('discord'));
 
 router.get('/callback/discord', passport.authenticate('discord', {
-  failureRedirect: '/login'
-}), (req, res) => {
-  checkAccount(req.user.email, req.user.username, req.user.id);
-  res.redirect(req.session.returnTo || '/dashboard');
+  failureRedirect: '/'
+}), async (req, res) => {
+  await checkAccount(req.user.email, req.user.username, req.user.id);
+  return res.redirect(req.session.returnTo || '/dashboard');
 });
 
 // Reset password of the user via Pterodactyl API
 router.get('/reset', async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/');
     try {
-      // Generate new password
-      let password = randomstring.generate(process.env.PASSWORD_LENGTH);
+      let password = generateRandomString(process.env.PASSWORD_LENGTH);
   
-      // Update user password in Pterodactyl
       const userId = await db.get(`id-${req.user.email}`);
-      await axios.patch(`${pterodactyl.url}/api/application/users/${userId}`, {
+      await axios.patch(`${provider.url}/api/application/users/${userId}`, {
         email: req.user.email,
         username: req.user.username,
         first_name: req.user.id,
@@ -125,30 +123,19 @@ router.get('/reset', async (req, res) => {
         password: password
       }, {
         headers: {
-          'Authorization': `Bearer ${pterodactyl.key}`,
+          'Authorization': `Bearer ${provider.key}`,
           'Content-Type': 'application/json',
           'Accept': 'Application/vnd.pterodactyl.v1+json'
         }
       });
   
-      // Update password in database
       db.set(`password-${req.user.email}`, password)
-      fs.appendFile(process.env.LOGS_PATH, '[LOG] Password resetted for user.' + '\n', (err) => {
-        if (err) console.log(`Failed to save log: ${err}`);
-      });
+      log('Password reset for user.');
   
-      // Load credentials page
       res.redirect('/credentials');
     } catch (error) {
-      // Handle error
-      fs.appendFile(process.env.LOGS_ERROR_PATH, '[LOG] Failed to reset password for a user. The panel did not respond correctly.' + '\n', (err) => {
-        if (err) console.log(`Failed to save log: ${err}`);
-      });
-
-      res.status(500).send({
-        success: false,
-        message: 'Error resetting password'
-      });
+      logError('Failed to reset password for a user. The panel did not respond correctly.');
+      res.redirect('/dashboard');
     }
 });
 

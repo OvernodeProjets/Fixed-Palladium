@@ -1,77 +1,61 @@
 <%- include('./components/wrapper') %>
-
-        <main class="flex-1 bg-gray-800">
-          <div class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <!-- Content -->
-              <script>
-                let session = 0;
-                let afkTime = 0;
-                
-                function connect() {
-                  const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkwspath`);
-                  ws.onopen = () => {
-                    console.log("[WS] Connected to websocket.");
-                    document.getElementById("coinCountdown").innerHTML = "Connected to websocket.";
-                  };
-                  ws.onmessage = (msg) => {
-                    let z = JSON.parse(msg.data);
-                    if (z.type == "count") {
-                      document.getElementById("coinCountdown").innerHTML = `${z.amount} seconds`;
-                      afkTime++;
-                      const hours = Math.floor(afkTime / 3600);
-                      const minutes = Math.floor((afkTime % 3600) / 60);
-                      const seconds = afkTime % 60;
-                      document.getElementById("afkTime").innerHTML = `${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
-                    } else if (z.type == "coin") {
-                      session++;
-                      currentCoins++;
-                      document.getElementById("sessionEarn").innerHTML = `${session} coins`;
-                      document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`;
-                    }
-                  };
-                  ws.onerror = (err) => {
-                    console.log("[WS] Error connecting to websocket.");
-                    console.log(err);
-                    document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
-                    document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
-                    document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
-                    setTimeout(() => {
-                      connect();
-                    }, 750);
-                  };
-                  ws.onclose = () => {
-                    document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
-                    document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
-                    document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
-                    setTimeout(() => {
-                      connect();
-                    }, 750);
-                  };
-                }
+  <main class="flex-1 bg-gray-800">
+    <div class="py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <!-- Content -->
+        <script>
+          let session = 0;
+          let afkTime = 0;
+          
+          function connect() {
+            const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkwspath`);
+            ws.onopen = () => {
+              console.log("[WS] Connected to websocket.");
+              document.getElementById("coinCountdown").innerHTML = "Connected to websocket.";
+            };
+            ws.onmessage = (msg) => {
+              let z = JSON.parse(msg.data);
+              if (z.type == "count") {
+                document.getElementById("coinCountdown").innerHTML = `${z.amount} seconds`;
+                afkTime++;
+                const hours = Math.floor(afkTime / 3600);
+                const minutes = Math.floor((afkTime % 3600) / 60);
+                const seconds = afkTime % 60;
+                document.getElementById("afkTime").innerHTML = `${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
+              } else if (z.type == "coin") {
+                session++;
+                currentCoins++;
+                document.getElementById("sessionEarn").innerHTML = `${session} coins`;
+                document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`;
+              }
+            };
+            ws.onerror = (err) => {
+              console.log("[WS] Error connecting to websocket.");
+              console.log(err);
+              document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
+              document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
+              document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
+              setTimeout(() => {
                 connect();
-              </script>
-              <p class="text-white">You are currently earning coins using the AFK page!</p>
-              <p class="text-gray-400">
-                You will earn a coin in
-                <code class="text-white" id="coinCountdown">Connecting to websocket...</code>
-              </p>
-              <p class="text-gray-400">
-                This earning session you have earned
-                <code class="text-white" id="sessionEarn">0 coins</code>
-              </p>
-              <p class="text-gray-400">
-                Your current balance
-                <code class="text-white" id="currentCoins"><%= coins %> coins</code>
-              </p>
-              <p class="text-gray-400">
-                You have been AFK for
-                <code class="text-white" id="afkTime">0 hours, 0 minutes, and 0 seconds</code>
-              </p>
-            </div>
-          </div>
-        </main>
+              }, 750);
+            };
+            ws.onclose = () => {
+              document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
+              document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
+              document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
+              setTimeout(() => {
+                connect();
+              }, 750);
+            };
+          }
+          connect();
+        </script>
+        <p class="text-white">You are currently earning coins using the AFK page!</p>
+        <p class="text-gray-400">You will earn a coin in <code class="text-white" id="coinCountdown">Connecting to websocket...</code></p>
+        <p class="text-gray-400">This earning session you have earned <code class="text-white" id="sessionEarn">0 coins</code></p>
+        <p class="text-gray-400">Your current balance <code class="text-white" id="currentCoins"><%= coins %> coins</code></p>
+        <p class="text-gray-400">You have been AFK for <code class="text-white" id="afkTime">0 hours, 0 minutes, and 0 seconds</code></p>
       </div>
     </div>
-
+  </main>
 <%- include('./components/footer') %>

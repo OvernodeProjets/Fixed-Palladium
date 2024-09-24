@@ -29,7 +29,7 @@ All features:
 
 # Install Guide
 
-Warning: You need Pterodactyl already set up on a domain for Fixed-Palladium to work
+Warning: You need Pterodactyl already setup on a domain for Fixed-Palladium to work
 1. Upload the file above onto a Pterodactyl NodeJS server [Download the egg from Parkervcp's GitHub Repository](https://github.com/parkervcp/eggs/blob/master/generic/nodejs/egg-node-js-generic.json)
 2. Unarchive the file and set the server to use NodeJS 16
 3. Configure `.env`, `/storage/eggs.json` & `/storage/plans.json` with the scan or manuel

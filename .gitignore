@@ -2,3 +2,4 @@
 node_modules/
 storage/database.sqlite
 package-lock.json
+.vscode/

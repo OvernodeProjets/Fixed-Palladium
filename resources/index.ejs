@@ -1,65 +1,63 @@
 <!DOCTYPE html>
 <!--
 
-  Palladium V1.x
-  Made by Pine Platforms Ltd.
+  6Th Gen Palladium || 1Th Gen Fixed-Palladium
+  Made by Pine Platforms Ltd & Overnode Projects.
   Github: https://github.com/PinePlatforms/Palladium
+  Github: https://github.com/OvernodeProjets/Fixed-Palladium
   
 -->
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/public/tailwind.css" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  </head>
-  <body style="font-family: 'Inter'" class="bg-gray-800">
-    <div class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-72">
-      <div class="w-full max-w-md space-y-8">
-        <div>
-          <% if (req.query.err == "INTERNALERROR") { %>
-          <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative" role="alert">
-            <div class="flex">
-              <div class="py-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-              </div>
-              <div>
-                <p class="font-bold">Internal Server Error</p>
-                <p class="text-sm relative">Fixed-Palladium couldn't process the action due to an internal issue.</p>
-              </div>
-            </div>
-          </div>
-          <% } %> <% if (req.query.err == "BANNED") { %>
-            <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative" role="alert">
-              <div class="flex">
-                <div class="py-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                  </svg>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="tailwind.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <title><%= name %></title>
+</head>
+<body style="font-family: 'Inter'" class="bg-gray-900 h-screen flex items-center justify-center">
+    <div class="flex w-full max-w-4xl bg-gray-800 rounded-lg overflow-hidden">
+        <div class="w-2/3 flex flex-col p-8 space-y-6">
+            <% if (req.query.err == "INTERNALERROR") { %>
+            <div class="bg-gray-700 border-l-4 border-red-600 rounded-lg text-gray-100 px-4 py-3 mb-6 relative" role="alert">
+                <div class="flex">
+                    <div class="py-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 mr-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold">Internal Server Error</p>
+                        <p class="text-sm relative">Fixed-Palladium couldn't process the action due to an internal issue.</p>
+                    </div>
                 </div>
-                <div>
-                  <p class="font-bold">Your account has been banned</p>
-                  <p class="text-sm relative">You were banned for this reason: <%= req.query.reason %></p>
+            </div>
+            <% } %> <% if (req.query.err == "BANNED") { %>
+              <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative" role="alert">
+                <div class="flex">
+                  <div class="py-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 mr-3">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-bold">Your account has been banned</p>
+                    <p class="text-sm relative">You were banned for this reason: <%= req.query.reason %></p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <% } %>            
-          <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-white">Login to <%= name %></h2>
-          <p class="mt-2 text-center text-sm text-gray-400">Ready to get started?</p>
+              <% } %> 
+
+            <h2 class="text-3xl font-bold tracking-tight text-white">Login to <%= name %></h2>
+            <p class="text-sm text-gray-400 mt-2">Ready to get started? Sign in to access your account and manage your services. </p>
         </div>
-        <form class="mt-8 space-y-6" action="#" method="POST">
-          <div class="flex items-center justify-center">
-            <div class="inline-flex flex items-center rounded-md shadow-sm" role="group">
-              <a href="../login/discord" type="button" class="transition justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700/75 border border-gray-700/50 rounded-l-lg hover:bg-gray-700/50 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Login </a>
-              <a href="../panel" type="button" class="transition justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700/75 border rounded-r-lg border-gray-700/50 hover:bg-gray-700/50 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Panel </a>
-            </div>
-          </div>
-        </form>
-      </div>
+
+        <div class="w-1/3 flex flex-col items-center justify-center p-8 space-y-4">
+            <a href="../login/discord" type="button" class="transition justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Login with discord </a>
+            <a href="../login" type="button" class="transition justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Login with email </a>
+        </div>
     </div>
-  </body>
+</body>
 </html>
