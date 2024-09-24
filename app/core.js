@@ -34,7 +34,9 @@ function ensureAuthenticated(req, res, next) {
 async function checkPassword(email) {
   try {
     let password = await db.get(`password-${email}`);
-    password = decrypt(password);
+    console.log(password) // idk if it work my pterodadctyl panel doesn't work
+    password = decrypt(password) || "Password Not Found";
+    
     return password;
   } catch (error) {
     logError('Error checking password.', error);

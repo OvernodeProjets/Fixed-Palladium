@@ -77,7 +77,6 @@ async function checkAccount(email, username, id) {
       await db.set(`id-${email}`, userId);
   } catch (error) {
       logError('Failed to check user information. The panel did not respond correctly.');
-      res.redirect('/?err=INTERNALERROR');
   }
 };
 
@@ -111,7 +110,7 @@ router.get('/callback/discord', passport.authenticate('discord', {
 });
 
 // Reset password of the user via Pterodactyl API
-router.get('/reset', async (req, res) => {
+router.get('/reset-password', async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/');
     try {
       let password = generateRandomString(process.env.PASSWORD_LENGTH);
