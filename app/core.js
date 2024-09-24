@@ -8,6 +8,7 @@ const axios = require('axios');
 const db = require('../handlers/db');
 const { logError } = require('../handlers/logs');
 const { existingResources, maxResources, ensureResourcesExist } = require('../handlers/resource');
+const { decrypt } = require('../handlers/aes');
 
 const provider = {
   url: process.env.PROVIDER_URL,
@@ -33,6 +34,7 @@ function ensureAuthenticated(req, res, next) {
 async function checkPassword(email) {
   try {
     let password = await db.get(`password-${email}`);
+    password = decrypt(password);
     return password;
   } catch (error) {
     logError('Error checking password.', error);

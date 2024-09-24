@@ -9,6 +9,7 @@ const axios = require('axios');
 
 const db = require('../handlers/db');
 const { log, logError } = require('../handlers/logs');
+const { encrypt } = require('../handlers/aes');
 
 const provider = {
   url: process.env.PROVIDER_URL,
@@ -66,7 +67,9 @@ async function checkAccount(email, username, id) {
           });
           userId = response.data.data[0].attributes.id;
           // Set password in the database & log to console
-          db.set(`password-${email}`, password);
+          const encryptedPassword = encrypt(password);
+          db.set(`password-${email}`, encryptedPassword);
+
           log('User object created.');
       }
 
@@ -128,8 +131,9 @@ router.get('/reset', async (req, res) => {
           'Accept': 'Application/vnd.pterodactyl.v1+json'
         }
       });
-  
-      db.set(`password-${req.user.email}`, password)
+      const encryptedPassword = encrypt(password);
+      db.set(`password-${req.user.email}`, encryptedPassword)
+
       log('Password reset for user.');
   
       res.redirect('/credentials');
