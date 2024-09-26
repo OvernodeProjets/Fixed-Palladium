@@ -25,14 +25,19 @@ function encrypt(password) {
 }
 
 function decrypt(encrypted) {
-  if (!encryptionKey || encryptionKey === "") {
-    console.warn('No encryption key, password will not be encrypted');
-    return encrypted;
+  try {
+    if (!encryptionKey || encryptionKey === "") {
+      console.warn('No encryption key, password will not be encrypted');
+      return encrypted;
+    }
+    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), Buffer.from(encrypted.iv, 'hex'));
+    let decrypted = decipher.update(encrypted.encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (error) {
+    logError('Error in decrypt', error)
   }
-  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), Buffer.from(encrypted.iv, 'hex'));
-  let decrypted = decipher.update(encrypted.encryptedData, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+
 }
 
 module.exports = {

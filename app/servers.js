@@ -194,8 +194,6 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
     if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
 
     const max = await maxResources(req.user.email);
-    const existing = await existingResources(req.user.email);
-// need testing 
 
     if (parseInt(req.query.cpu) > parseInt(max.cpu)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.ram) > parseInt(max.ram)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
@@ -203,22 +201,25 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
     if (parseInt(req.query.database) > parseInt(max.database)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.backup) > parseInt(max.backup)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.allocation) > parseInt(max.allocation)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+  
+    let limits = {
+      memory: req.query.ram,
+      disk: req.query.disk,
+      cpu: req.query.cpu,
+      swap: server.data.attributes.limits.swap || 0,
+      io: server.data.attributes.limits.io || 500
+    };
 
-    // Update the server
-    await axios.patch(`${provider.url}/api/application/servers/${serverId}`, {
-      name: req.query.name,
-      limits: {
-        memory: req.query.ram,
-        swap: -1,
-        disk: req.query.disk,
-        io: 500,
-        cpu: req.query.cpu
-      },
-      feature_limits: {
-        databases: req.query.database,
-        backups: req.query.backup,
-        allocations: req.query.allocation
-      }
+    let feature_limits = {
+      databases: req.query.database,
+      backups: req.query.backup,
+      allocations: req.query.allocation
+    };
+
+    await axios.patch(`${provider.url}/api/application/servers/${serverId}/build`, {
+      limits,
+      feature_limits,
+      allocation: server.data.attributes.allocation
     }, {
       headers: {
         'Authorization': `Bearer ${provider.key}`,
