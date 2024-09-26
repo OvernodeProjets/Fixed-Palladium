@@ -1,5 +1,5 @@
 .env
 node_modules/
-storage/database.sqlite
+storage/
 package-lock.json
 .vscode/
