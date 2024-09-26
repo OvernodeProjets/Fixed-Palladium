@@ -149,16 +149,16 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
       }
     }, {
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${provider.key}`,
         'Accept': 'application/json',
-        'Authorization': `Bearer ${provider.key}`
+        'Content-Type': 'application/json'
       }
     });
 
     res.redirect('../dashboard?success=CREATED');
   } catch (error) {
     logError('Error in create', error)
-    res.redirect('../create-server?err=ERRORONCREATE');
+    res.redirect('../create-server?err=INTERNALERROR');
   }
 });
 
@@ -195,13 +195,14 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
 
     const max = await maxResources(req.user.email);
     const existing = await existingResources(req.user.email);
+// need testing 
 
-    if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.ram) > parseInt(max.ram - existing.ram)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.disk) > parseInt(max.disk - existing.disk)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.database) > parseInt(max.database - existing.database)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.backup) > parseInt(max.backup - existing.backup)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.allocation) > parseInt(max.allocation - existing.allocation)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.cpu) > parseInt(max.cpu)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.ram) > parseInt(max.ram)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.disk) > parseInt(max.disk)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.database) > parseInt(max.database)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.backup) > parseInt(max.backup)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.allocation) > parseInt(max.allocation)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
 
     // Update the server
     await axios.patch(`${provider.url}/api/application/servers/${serverId}`, {
@@ -220,16 +221,43 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
       }
     }, {
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${provider.key}`,
         'Accept': 'application/json',
-        'Authorization': `Bearer ${provider.key}`
+        'Content-Type': 'application/json'
       }
     });
 
     res.redirect('../dashboard?success=EDITED');
   } catch (error) {
     logError('Error in edit', error)
-    res.redirect('../dashboard?err=ERRORONEDIT');
+    res.redirect('../dashboard?err=INTERNALERROR');
+  }
+});
+
+router.get('/edit-server', ensureAuthenticated, async (req, res) => {
+  try {
+    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (!req.query.id) return res.redirect('/dashboard');
+        const userId = await db.get(`id-${req.user.email}`);
+        const server = await axios.get(`${provider.url}/api/application/servers/${req.query.id}`, {
+          headers: {    
+           'Authorization': `Bearer ${provider.key}`,
+           'Accept': 'application/json'
+          }
+      });
+      if (server.data.attributes.user !== userId) return res.redirect('../dashboard?err=DONOTOWN');
+      res.render('edit', {
+        req: req, // Requests (queries) 
+        user: req.user, // User info (if logged in)
+        name: process.env.APP_NAME, // Dashboard name
+        admin: await db.get(`admin-${req.user.email}`), // Admin status
+        coins: await db.get(`coins-${req.user.email}`), // Coins
+        server: server.data.attributes, // Server the user owns
+        eggs: require('../storage/eggs.json') // Eggs data
+      });
+  } catch (error) {
+    logError('Error in edit page', error)
+    res.redirect('../dashboard?err=INTERNALERROR');
   }
 });
 

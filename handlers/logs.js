@@ -11,7 +11,7 @@ const log = (message) => {
 }
 
 const logError = (message, error = '') => {
-    const errorMessage = `[ERROR] ${message}\n`;
+    const errorMessage = `[ERROR] ${message} (${error})\n`;
     fs.appendFile(process.env.LOGS_ERROR_PATH, errorMessage, (err) => {
         if (err) console.log(`Failed to save log: ${err}`);
     });

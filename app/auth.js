@@ -31,52 +31,42 @@ async function checkAccount(email, username, id) {
       // Check if user has an account
       let response = await axios.get(`${provider.url}/api/application/users?filter[email]=${email}`, {
           headers: {
-              'Authorization': `Bearer ${provider.key}`,
-              'Content-Type': 'application/json',
-              'Accept': 'Application/vnd.pterodactyl.v1+json'
+            'Authorization': `Bearer ${provider.key}`,
+            'Content-Type': 'application/json'
           }
       });
       // If yes, do nothing
       let userId;
-      if (response.data.data.length > 0) {
+      if (response.data.data && response.data.data.length > 0) {
           userId = response.data.data[0].attributes.id;
       } else {
           // If not, create one
           let password = generateRandomString(process.env.PASSWORD_LENGTH);
           response = await axios.post(`${provider.url}/api/application/users`, {
-              'email': email,
               'username': username,
+              'email': email,
               "first_name": id,
               "last_name": 'Palladium User',
               'password': password
           }, {
               headers: {
-                  'Authorization': `Bearer ${provider.key}`,
-                  'Content-Type': 'application/json',
-                  'Accept': 'Application/vnd.pterodactyl.v1+json'
+                'Authorization': `Bearer ${provider.key}`,
+                'Content-Type': 'application/json'
               }
           });
+          if (response.status === 201) {
+            userId = response.data.attributes.id;
+            // Set password in the database
+            const encryptedPassword = encrypt(password);
+            db.set(`password-${email}`, encryptedPassword);
 
-          // Fetch the user's ID
-          response = await axios.get(`${provider.url}/api/application/users?filter[email]=${email}`, {
-              headers: {
-                  'Authorization': `Bearer ${provider.key}`,
-                  'Content-Type': 'application/json',
-                  'Accept': 'Application/vnd.pterodactyl.v1+json'
-              }
-          });
-          userId = response.data.data[0].attributes.id;
-          // Set password in the database & log to console
-          const encryptedPassword = encrypt(password);
-          db.set(`password-${email}`, encryptedPassword);
-
-          log('User object created.');
+            log('User object created.');
+        }
       }
-
       // Set userID in the database
       await db.set(`id-${email}`, userId);
   } catch (error) {
-      logError('Failed to check user information. The panel did not respond correctly.');
+      logError('Failed to check user information. The panel did not respond correctly.', error);
   }
 };
 
@@ -126,8 +116,8 @@ router.get('/reset-password', async (req, res) => {
       }, {
         headers: {
           'Authorization': `Bearer ${provider.key}`,
-          'Content-Type': 'application/json',
-          'Accept': 'Application/vnd.pterodactyl.v1+json'
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       });
       const encryptedPassword = encrypt(password);
@@ -137,7 +127,7 @@ router.get('/reset-password', async (req, res) => {
   
       res.redirect('/credentials');
     } catch (error) {
-      logError('Failed to reset password for a user. The panel did not respond correctly.');
+      logError('Failed to reset password for a user. The panel did not respond correctly.', error);
       res.redirect('/dashboard');
     }
 });

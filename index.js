@@ -33,8 +33,6 @@ if (!process.env.ADMIN_USERS) {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/resources'));
 
-app.set('trust proxy', true);
-
 // Setup rateLimit
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
