@@ -7,7 +7,7 @@ const axios = require('axios');
 const fs = require('fs');
 
 const db = require('../handlers/db');
-const { logError } = require('../handlers/logs');
+const { logError, logToDiscord, log } = require('../handlers/logs');
 
 const provider = {
     url: process.env.PROVIDER_URL,
@@ -97,6 +97,12 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                 const allEggs = [...existingEggs, ...formattedEggs];
                 fs.writeFileSync(filePath, JSON.stringify(allEggs, null, 2));
 
+                logToDiscord(
+                    "scan eggs",
+                    `${req.user.username} has scanned the eggs !`
+                );
+                log(`${req.user.username} has scanned the eggs !`);
+
                 res.redirect('/admin?success=COMPLETE');
             } catch (error) {
                 console.error(`Error fetching eggs: ${error}`);
@@ -143,6 +149,12 @@ router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
                 const allLocations = [...existingLocations, ...formattedLocations];
                 fs.writeFileSync(filePath, JSON.stringify(allLocations, null, 2));
 
+                logToDiscord(
+                    "scan locations",
+                    `${req.user.username} has scanned the locations !`
+                );
+                log(`${req.user.username} has scanned the locations !`);
+
                 res.redirect('/admin?success=COMPLETE');
             } catch (error) {
                 console.error(`Error fetching locations: ${error}`);
@@ -168,6 +180,13 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
 
             let amountParse = parseInt((await db.get(`coins-${email}`))) + parseInt(amount);
             await db.set(`coins-${email}`, amountParse);
+
+            logToDiscord(
+                "add coins",
+                `${req.user.username} has add \`${amount}\` coins for \`${email}\` !`
+            );
+            log(`${req.user.username} has add ${amount} coins for ${email} !`);
+
             res.redirect('/admin?success=COMPLETE');
         } else {
             res.redirect('/dashboard');
@@ -188,6 +207,13 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
 
             let amountParse = parseInt(amount);
             await db.set(`coins-${email}`, amountParse);
+
+            logToDiscord(
+                "set coins",
+                `${req.user.username} has set \`${amount}\` coins for \`${email}\` !`
+            );
+            log(`${req.user.username} has set ${amount} coins for ${email} !`);
+
             res.redirect('/admin?success=COMPLETE');
         } else {
             res.redirect('/dashboard');
@@ -199,6 +225,7 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
 });
 
 // Set & Add resources
+// add allocations
 router.get('/addresources', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
@@ -230,6 +257,12 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
             await db.set(`backup-${email}`, currentBackup + backupAmount);
             await db.set(`database-${email}`, currentDatabase + databaseAmount);
 
+            logToDiscord(
+                "add resources",
+                `${req.user.username} has add resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\`\`\`!`
+            );
+            log(`${req.user.username} has add resources for ${email} !`);
+
             res.redirect('/admin?success=COMPLETE');
         } else {
             res.redirect('/dashboard');
@@ -240,6 +273,7 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// add allocations
 router.get('/setresources', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
@@ -264,6 +298,12 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
             await db.set(`backup-${email}`, backupAmount);
             await db.set(`database-${email}`, databaseAmount);
 
+            logToDiscord(
+                "set resources",
+                `${req.user.username} has set resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\`\`\`!`
+            );
+            log(`${req.user.username} has set resources for ${email} !`);
+
             res.redirect('/admin?success=COMPLETE');
         } else {
             res.redirect('/dashboard');
@@ -283,6 +323,13 @@ router.get('/ban', ensureAuthenticated, async (req, res) => {
             if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
 
             await db.set(`banned-${email}`, reason);
+
+            logToDiscord(
+                "ban",
+                `${req.user.username} has ban \`${email}\` with reason \`${reason}\` !`
+            );
+            log(`${req.user.username} has ban ${email} with reason ${reason} !`);
+
             res.redirect('/admin?success=BANNED');
         } else {
             res.redirect('/dashboard');
@@ -301,6 +348,13 @@ router.get('/unban', ensureAuthenticated, async (req, res) => {
             if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
 
             await db.delete(`banned-${email}`);
+
+            logToDiscord(
+                "unban",
+                `${req.user.username} has unban \`${email}\` !`
+            );
+            log(`${req.user.username} has unban ${email} !`);
+
             res.redirect('/admin?success=UNBANNED');
         } else {
             res.redirect('/dashboard');

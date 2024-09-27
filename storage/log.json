@@ -6,17 +6,24 @@
             "user": {
                 "signup": true,
                 "login": true,
+                "reset password": true,
                 "created server": true,
+                "edited server": true,
                 "deleted server": true,
-                "coupon redeemed": true,
-                "modify server": true,
-                "resources purchased": true
+                "resources purchased": true,
+                "plan purchased": true,
+
+                "coupon redeemed": true
             },
             "admin": {
-                "set coins": true,
+                "scan eggs": true,
+                "scan locations": true,
                 "add coins": true,
+                "set coins": true,
                 "add resources": true,
                 "set resources": true,
+                "ban": true,
+                "unban": true,
 
                 "set plan": true,
                 "create coupon": true,

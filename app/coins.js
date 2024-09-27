@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 const db = require('../handlers/db');
-const { logError } = require('../handlers/logs');
+const { logError, log, logToDiscord } = require('../handlers/logs');
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
@@ -144,6 +144,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`cpu-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} CPU\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} CPU !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    } else if (req.query.resource == 'ram') {
 	        let resourceAmount = 1024 * req.query.amount;
@@ -152,6 +159,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`ram-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} RAM\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} RAM !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    } else if (req.query.resource == 'disk') {
 	        let resourceAmount = 1024 * req.query.amount;
@@ -160,6 +174,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`disk-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} Disk\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} Disk !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    } else if (req.query.resource == 'backup') {
 	        let resourceAmount = req.query.amount;
@@ -168,6 +189,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`backup-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} Backup\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} Backup !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    } else if (req.query.resource == 'database') {
 	        let resourceAmount = req.query.amount;
@@ -176,6 +204,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`database-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} Database\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} Database !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    } else if (req.query.resource == 'allocation') {
 	        let resourceAmount = req.query.amount;
@@ -184,6 +219,13 @@ router.get('/buyresource', ensureAuthenticated, async (req, res) => {
 	        if (coins < resourceCost) return res.redirect('/store?err=NOTENOUGHCOINS');
 	        await db.set(`allocation-${req.user.email}`, parseInt(currentResources) + parseInt(resourceAmount));
 	        await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(resourceCost));
+
+			logToDiscord(
+				"resources purchased",
+				`${req.user.username} has purchased \`${resourceAmount} Allocation\` !`
+			);
+			log(`${req.user.username} has purchased ${resourceAmount} Allocation !`);
+
 	        return res.redirect('/store?success=BOUGHTRESOURCE');
 	    }
 	} catch (error) {
@@ -241,6 +283,12 @@ router.get('/buyplan', ensureAuthenticated, async (req, res) => {
 
         await db.set(`plan-${req.user.email}`, selectedPlanName);
         await db.set(`coins-${req.user.email}`, parseInt(coins) - parseInt(planCost));
+
+		logToDiscord(
+			"plan purchased",
+			`${req.user.username} has purchased \`${selectedPlanName}\` Plan !`
+		);
+		log(`${req.user.username} has purchased ${selectedPlanName} Plan !`);
 
         return res.redirect('/store?success=BOUGHTPLAN');
     } catch (error) {

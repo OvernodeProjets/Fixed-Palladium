@@ -86,10 +86,12 @@ async function checkAccount(email, username, id) {
       }
       // Set userID in the database
       await db.set(`id-${email}`, userId);
+
       logToDiscord(
         "login",
         `${username} logged in to the dashboard !`
       );
+      log(`${username} has connected to the dashboard.`);
   } catch (error) {
       logError('Failed to check user information. The panel did not respond correctly.', error);
   }
@@ -148,7 +150,11 @@ router.get('/reset-password', ensureAuthenticated, async (req, res) => {
       const encryptedPassword = encrypt(password);
       db.set(`password-${req.user.email}`, encryptedPassword)
 
-      log('Password reset for user.');
+      logToDiscord(
+        "reset password",
+        `${req.user.username} has reset him password !`
+      );
+      log(`Password reset for ${req.user.username}.`);
   
       res.redirect('/credentials');
     } catch (error) {
@@ -161,7 +167,7 @@ router.get('/remove-account', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
   try {
     const userId = await db.get(`id-${req.user.email}`);
-    console.log("a")
+
     let cacheAccount = await axios.get(`${provider.url}/api/application/users/${userId}?include=servers`, {
       headers: { 
           'Content-Type': 'application/json', 
@@ -199,7 +205,11 @@ router.get('/remove-account', ensureAuthenticated, async (req, res) => {
     await db.delete(`coins-${req.user.email}`);
     await db.delete(`password-${req.user.email}`);
 
-    log(`User account removed (${req.user.username}).`);
+    logToDiscord(
+      "reset-password",
+      `${req.user.username} has deleted his account !`
+    );
+    log(`${req.user.username} has deleted him account !`);
 
     req.logout((err)=>{});
     res.redirect('/');

@@ -1234,6 +1234,10 @@ select {
   border-color: rgb(220 38 38 / var(--tw-border-opacity));
 }
 
+.border-red-700\/50 {
+  border-color: rgb(185 28 28 / 0.5);
+}
+
 .border-transparent {
   border-color: transparent;
 }
@@ -1241,10 +1245,6 @@ select {
 .border-yellow-400 {
   --tw-border-opacity: 1;
   border-color: rgb(250 204 21 / var(--tw-border-opacity));
-}
-
-.border-red-700\/50 {
-  border-color: rgb(185 28 28 / 0.5);
 }
 
 .bg-blue-500 {

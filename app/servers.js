@@ -6,7 +6,7 @@ const router = express.Router();
 const axios = require('axios');
 
 const db = require('../handlers/db');
-const { logError } = require('../handlers/logs');
+const { logError, logToDiscord, log } = require('../handlers/logs');
 const { existingResources, maxResources } = require('../handlers/resource');
 
 // Resources
@@ -56,6 +56,12 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
       }
     });
 
+    logToDiscord(
+      "deleted server",
+      `${req.user.username} has deleted server with : \n\`\`\`Name: ${server.data.attributes.name}%\nCPU: ${server.data.attributes.limits.cpu}%\nMemory: ${server.data.attributes.limits.ram} MB\nDisk: ${server.data.attributes.limits.disk} MB\nBackup: ${server.data.attributes.feature_limits.backups}\nDatabase: ${server.data.attributes.feature_limits.database}\nAllocation: ${server.data.attributes.feature_limits.allocation}\`\`\`!`
+    );
+    log(`${req.user.username} has deleted server`);
+
     res.redirect('/dashboard?success=DELETE');
   } catch (error) {
     if (error.response && error.response.status === 404) return res.redirect('../dashboard?err=NOTFOUND');
@@ -88,7 +94,6 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     if (parseInt(req.query.disk) > limitsRessources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
 
     // Check if user has enough resources left
-
     if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.ram) > parseInt(max.ram - existing.ram)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.disk) > parseInt(max.disk - existing.disk)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
@@ -154,6 +159,12 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
+
+    logToDiscord(
+      "created server",
+      `${req.user.username} has created server with : \n\`\`\`Name: ${name}\nLocation: ${location}\nEgg: ${egg.name}\nCPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\nAllocation: ${allocation}\`\`\``
+    );
+    log(`${req.user.username} has created server`);
 
     res.redirect('../dashboard?success=CREATED');
   } catch (error) {
@@ -238,6 +249,12 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
+
+    logToDiscord(
+      "edited server",
+      `${req.user.username} has edited server with : \n\`\`\`CPU: ${req.query.cpu}%\nMemory: ${req.query.ram} MB\nDisk: ${req.query.disk} MB\nBackup: ${req.query.backup}\nDatabase: ${req.query.database}\nAllocation: ${req.query.allocation}\`\`\`!`
+    );
+    log(`${req.user.username} has edited server`);
 
     res.redirect('../dashboard?success=EDITED');
   } catch (error) {
