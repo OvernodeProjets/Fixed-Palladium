@@ -1,0 +1,28 @@
+{
+    "logging": {
+        "status": true,
+        "webhook": "Your webhook link",
+        "actions": {
+            "user": {
+                "signup": true,
+                "login": true,
+                "created server": true,
+                "deleted server": true,
+                "coupon redeemed": true,
+                "modify server": true,
+                "resources purchased": true
+            },
+            "admin": {
+                "set coins": true,
+                "add coins": true,
+                "add resources": true,
+                "set resources": true,
+
+                "set plan": true,
+                "create coupon": true,
+                "revoke coupon": true,
+                "remove account": true
+            }
+        }
+    }
+}

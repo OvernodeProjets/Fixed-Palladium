@@ -8,13 +8,30 @@ const DiscordStrategy = require('passport-discord');
 const axios = require('axios');
 
 const db = require('../handlers/db');
-const { log, logError } = require('../handlers/logs');
+const { log, logError, logToDiscord } = require('../handlers/logs');
 const { encrypt } = require('../handlers/aes');
 
 const provider = {
   url: process.env.PROVIDER_URL,
   key: process.env.PROVIDER_KEY
 };
+
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+      // Check if the user is banned
+      db.get(`banned-${req.user.email}`).then(reason => {
+          if (reason) return res.redirect(`/?err=BANNED&reason=${encodeURIComponent(reason)}`);
+
+          return next();
+      }).catch(err => {
+          console.error(err);
+          return res.status(500).send('Internal Server Error');
+      });
+  } else {
+      req.session.returnTo = req.originalUrl;
+      res.redirect('/');
+  }
+}
 
 function generateRandomString(length) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -60,11 +77,19 @@ async function checkAccount(email, username, id) {
             const encryptedPassword = encrypt(password);
             db.set(`password-${email}`, encryptedPassword);
 
+            logToDiscord(
+              "signup",
+              `${username} logged in to the dashboard for the first time!`
+            );
             log('User object created.');
         }
       }
       // Set userID in the database
       await db.set(`id-${email}`, userId);
+      logToDiscord(
+        "login",
+        `${username} logged in to the dashboard !`
+      );
   } catch (error) {
       logError('Failed to check user information. The panel did not respond correctly.', error);
   }
@@ -100,7 +125,7 @@ router.get('/callback/discord', passport.authenticate('discord', {
 });
 
 // Reset password of the user via Pterodactyl API
-router.get('/reset-password', async (req, res) => {
+router.get('/reset-password', ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email || !req.user.id) return res.redirect('/');
     try {
       let password = generateRandomString(process.env.PASSWORD_LENGTH);
@@ -130,6 +155,58 @@ router.get('/reset-password', async (req, res) => {
       logError('Failed to reset password for a user. The panel did not respond correctly.', error);
       res.redirect('/dashboard');
     }
+});
+
+router.get('/remove-account', ensureAuthenticated, async (req, res) => {
+  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  try {
+    const userId = await db.get(`id-${req.user.email}`);
+    console.log("a")
+    let cacheAccount = await axios.get(`${provider.url}/api/application/users/${userId}?include=servers`, {
+      headers: { 
+          'Content-Type': 'application/json', 
+          "Authorization": `Bearer ${provider.key}` 
+      }
+    }); 
+
+    let servers = cacheAccount.data.attributes.relationships.servers.data;
+    for (let server of servers) {
+      await axios.delete(`${provider.url}/api/application/servers/${server.attributes.id}`, {
+          headers: {
+              'Content-Type': 'application/json',
+              "Authorization": `Bearer ${provider.key}`
+          }
+      });
+    }
+
+    await axios.delete(`${provider.url}/api/application/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${provider.key}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    await db.delete(`plan-${req.user.email}`);
+    await db.delete(`cpu-${req.user.email}`);
+    await db.delete(`ram-${req.user.email}`);
+    await db.delete(`disk-${req.user.email}`);
+    await db.delete(`database-${req.user.email}`);
+    await db.delete(`backup-${req.user.email}`);
+    await db.delete(`server-${req.user.email}`);
+    await db.delete(`allocation-${req.user.email}`);
+
+    await db.delete(`id-${req.user.email}`);
+    await db.delete(`coins-${req.user.email}`);
+    await db.delete(`password-${req.user.email}`);
+
+    log(`User account removed (${req.user.username}).`);
+
+    req.logout((err)=>{});
+    res.redirect('/');
+  } catch (error) {
+    logError('Failed to remove user account. The panel did not respond correctly.', error);
+    res.redirect('/dashboard?err=INTERNALERROR');
+  }
 });
 
 // Setup logout route

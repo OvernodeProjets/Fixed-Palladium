@@ -1243,6 +1243,10 @@ select {
   border-color: rgb(250 204 21 / var(--tw-border-opacity));
 }
 
+.border-red-700\/50 {
+  border-color: rgb(185 28 28 / 0.5);
+}
+
 .bg-blue-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
@@ -1285,6 +1289,10 @@ select {
 
 .bg-green-900\/50 {
   background-color: rgb(20 83 45 / 0.5);
+}
+
+.bg-red-700\/75 {
+  background-color: rgb(185 28 28 / 0.75);
 }
 
 .bg-red-900\/50 {
@@ -1592,6 +1600,10 @@ select {
 
 .hover\:bg-green-800\/50:hover {
   background-color: rgb(22 101 52 / 0.5);
+}
+
+.hover\:bg-red-700\/50:hover {
+  background-color: rgb(185 28 28 / 0.5);
 }
 
 .hover\:text-blue-400:hover {

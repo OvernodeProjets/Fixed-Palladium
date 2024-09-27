@@ -32,6 +32,7 @@ if (!process.env.ADMIN_USERS) {
 // Setup ejs as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/resources'));
+app.set('trust proxy', 1);
 
 // Setup rateLimit
 app.use(rateLimit({

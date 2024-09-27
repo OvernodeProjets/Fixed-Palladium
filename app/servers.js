@@ -195,12 +195,23 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
 
     const max = await maxResources(req.user.email);
 
-    if (parseInt(req.query.cpu) > parseInt(max.cpu)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.ram) > parseInt(max.ram)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.disk) > parseInt(max.disk)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.database) > parseInt(max.database)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.backup) > parseInt(max.backup)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
-    if (parseInt(req.query.allocation) > parseInt(max.allocation)) return res.redirect('../dashboard?err=NOTENOUGHRESOURCES');
+    const eggs = require('../storage/eggs.json');
+    const eggId = parseInt(req.query.egg);
+    const egg = eggs.find(e => e.id === eggId);
+    if (!egg) return res.redirect('../edit-server?err=INVALID_EGG');
+
+    const limitsRessources = egg.limitsRessources;
+
+    if (parseInt(req.query.cpu) > limitsRessources.cpu) return res.redirect('../edit-server?err=LIMITRESOURCESCPU');
+    if (parseInt(req.query.ram) > limitsRessources.memory) return res.redirect('../edit-server?err=LIMITRESOURCESRAM');
+    if (parseInt(req.query.disk) > limitsRessources.disk) return res.redirect('../edit-server?err=LIMITRESOURCESDISK');
+
+    if (parseInt(req.query.cpu) > parseInt(max.cpu)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.ram) > parseInt(max.ram)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.disk) > parseInt(max.disk)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.database) > parseInt(max.database)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.backup) > parseInt(max.backup)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
+    if (parseInt(req.query.allocation) > parseInt(max.allocation)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
   
     let limits = {
       memory: req.query.ram,
