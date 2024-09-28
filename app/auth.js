@@ -43,7 +43,7 @@ function generateRandomString(length) {
 }
 
 // Pterodactyl account system
-async function checkAccount(email, username, id) {
+async function checkAccount(email, username, id, access_token) {
   try {
       // Check if user has an account
       let response = await axios.get(`${provider.url}/api/application/users?filter[email]=${email}`, {
@@ -84,6 +84,22 @@ async function checkAccount(email, username, id) {
             log('User object created.');
         }
       }
+
+      try {
+        await axios.put(`https://discord.com/api/guilds/${process.env.DISCORD_GUILD_ID}/members/${id}`, {
+          access_token
+        }, {
+          headers: {
+            'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+    
+      } catch (error) {
+          console.error('Error adding to Discord server:', error.response ? error.response.data : error.message);
+          logError('Failed to add user to Discord server', error);
+      }
+
       // Set userID in the database
       await db.set(`id-${email}`, userId);
 
@@ -102,8 +118,9 @@ passport.use(new DiscordStrategy({
   clientID: process.env.DISCORD_CLIENT_ID,
   clientSecret: process.env.DISCORD_CLIENT_SECRET,
   callbackURL: process.env.DISCORD_CALLBACK_URL,
-  scope: ['identify', 'email']
+  scope: ['identify', 'email', 'guilds.join']
 }, (accessToken, refreshToken, profile, done) => {
+  profile.accessToken = accessToken;
   return done(null, profile);
 }));
 
@@ -122,7 +139,7 @@ router.get('/login/discord', passport.authenticate('discord'));
 router.get('/callback/discord', passport.authenticate('discord', {
   failureRedirect: '/'
 }), async (req, res) => {
-  await checkAccount(req.user.email, req.user.username, req.user.id);
+  await checkAccount(req.user.email, req.user.username, req.user.id, req.user.accessToken);
   return res.redirect(req.session.returnTo || '/dashboard');
 });
 
