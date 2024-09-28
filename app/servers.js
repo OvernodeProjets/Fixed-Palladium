@@ -9,6 +9,23 @@ const db = require('../handlers/db');
 const { logError, logToDiscord, log } = require('../handlers/logs');
 const { existingResources, maxResources } = require('../handlers/resource');
 
+let eggsCache;
+let locationsCache;
+
+function getEggs() {
+  if (!eggsCache) {
+    eggsCache = require('../storage/eggs.json');
+  }
+  return eggsCache;
+}
+
+function getLocations() {
+  if (!locationsCache) {
+    locationsCache = require('../storage/locations.json');
+  }
+  return locationsCache;
+}
+
 // Resources
 const provider = {
   url: process.env.PROVIDER_URL,
@@ -81,7 +98,7 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     const existing = await existingResources(req.user.email);
 
     // Retrieve the egg configuration
-    const eggs = require('../storage/eggs.json');
+    const eggs = getEggs();
     const eggId = parseInt(req.query.egg);
     const egg = eggs.find(e => e.id === eggId);
     if (!egg) return res.redirect('../create-server?err=INVALID_EGG');
@@ -181,8 +198,8 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
       name: process.env.APP_NAME, // Dashboard name
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       coins: await db.get(`coins-${req.user.email}`), // Coins
-      eggs: require('../storage/eggs.json'), // Eggs data
-      locations: require('../storage/locations.json') // Locations data
+      eggs: getEggs(), // Eggs data
+      locations: getLocations() // Locations data
     });
 });
 
@@ -206,7 +223,7 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
 
     const max = await maxResources(req.user.email);
 
-    const eggs = require('../storage/eggs.json');
+    const eggs = getEggs();
     const eggId = parseInt(req.query.egg);
     const egg = eggs.find(e => e.id === eggId);
     if (!egg) return res.redirect('../edit-server?err=INVALID_EGG');
@@ -282,7 +299,7 @@ router.get('/edit-server', ensureAuthenticated, async (req, res) => {
         admin: await db.get(`admin-${req.user.email}`), // Admin status
         coins: await db.get(`coins-${req.user.email}`), // Coins
         server: server.data.attributes, // Server the user owns
-        eggs: require('../storage/eggs.json') // Eggs data
+        eggs: getEggs() // Eggs data
       });
   } catch (error) {
     logError('Error in edit page', error)

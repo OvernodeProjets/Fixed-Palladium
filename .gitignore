@@ -3,3 +3,5 @@ node_modules/
 storage/database.sqlite
 package-lock.json
 .vscode/
+storage/logs/errors.log
+storage/logs/services.log

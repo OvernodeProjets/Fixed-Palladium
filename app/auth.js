@@ -193,14 +193,14 @@ router.get('/remove-account', ensureAuthenticated, async (req, res) => {
     }); 
 
     let servers = cacheAccount.data.attributes.relationships.servers.data;
-    for (let server of servers) {
-      await axios.delete(`${provider.url}/api/application/servers/${server.attributes.id}`, {
-          headers: {
-              'Content-Type': 'application/json',
-              "Authorization": `Bearer ${provider.key}`
-          }
-      });
-    }
+    await Promise.all(servers.map(server => 
+      axios.delete(`${provider.url}/api/application/servers/${server.attributes.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${provider.key}`
+        }
+      })
+    ));
 
     await axios.delete(`${provider.url}/api/application/users/${userId}`, {
       headers: {
@@ -224,7 +224,7 @@ router.get('/remove-account', ensureAuthenticated, async (req, res) => {
 
     logToDiscord(
       "reset-password",
-      `${req.user.username} has deleted his account !`
+      `${req.user.username} has deleted him account !`
     );
     log(`${req.user.username} has deleted him account !`);
 
