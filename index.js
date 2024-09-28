@@ -6,7 +6,7 @@ const app = express();
 
 const expressWs = require('express-ws')(app);
 const rateLimit = require('express-rate-limit');
-const minifyHTML = require('express-minify-html');
+const minifyHTML = require('express-minify-html-2');
 
 const fs = require('fs');
 const passport = require('passport');
