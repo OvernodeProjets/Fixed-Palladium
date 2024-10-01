@@ -275,7 +275,6 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// add allocations
 router.get('/setresources', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
