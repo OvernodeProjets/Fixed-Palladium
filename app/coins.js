@@ -59,6 +59,7 @@ router.ws('/afkwspath', async (ws, req) => {
 	            }
 	        } catch (error) {
 	            console.error(`Error in afkwspath interval: ${error}`);
+	            clearInterval(aba);
 	            ws.close();
 	        }
 	    }, 1000);

@@ -110,9 +110,9 @@ app.use(async (req, res, next) => {
         return next();
       }
     
-      const proxycheck_key = process.env.PROXYCHECK_KEY;
+      const proxyCheckKey = process.env.PROXYCHECK_KEY;
     
-      const proxyResponse = await axios.get(`http://proxycheck.io/v2/${userIp}?key=${proxycheck_key}`);
+      const proxyResponse = await axios.get(`http://proxycheck.io/v2/${userIp}?key=${proxyCheckKey}`);
       const proxyData = proxyResponse.data[userIp];
     
       cache.set(userIp, proxyData);
