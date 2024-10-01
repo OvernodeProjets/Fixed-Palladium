@@ -265,6 +265,13 @@
           </div>
     
           <br/>
+
+          <label for="ar-allocation" class="block text-sm font-medium text-gray-400">Allocation</label>
+          <div class="mt-1 flex rounded-md shadow-sm w-80">
+            <input type="text" name="ar-allocation" id="ar-allocation" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Allocation" />
+          </div>
+    
+          <br/>
         
           <a onclick="addResources()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Add Resources </a>
         
@@ -276,7 +283,8 @@
               let disk = encodeURIComponent(document.getElementById("ar-disk").value);
               let backup = encodeURIComponent(document.getElementById("ar-backup").value);
               let database = encodeURIComponent(document.getElementById("ar-database").value);
-              document.location.href = `/addresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}`;
+              let allocation = encodeURIComponent(document.getElementById("ar-allocation").value);
+              document.location.href = `/addresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}&allocation=${allocation}`;
             };
           </script>
         </div>
@@ -328,6 +336,13 @@
           </div>
     
           <br />
+
+          <label for="sr-allocation" class="block text-sm font-medium text-gray-400">Allocation</label>
+          <div class="mt-1 flex rounded-md shadow-sm w-80">
+            <input type="text" name="sr-allocation" id="sr-allocation" class="transition ease-in-out delay-100 block w-full flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Allocation" />
+          </div>
+    
+          <br />
         
           <a onclick="setResources()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Add Resources </a>
       
@@ -339,7 +354,8 @@
               let disk = encodeURIComponent(document.getElementById("sr-disk").value);
               let backup = encodeURIComponent(document.getElementById("sr-backup").value);
               let database = encodeURIComponent(document.getElementById("sr-database").value);
-              document.location.href = `/setresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}`;
+              let allocation = encodeURIComponent(document.getElementById("sr-allocation").value);
+              document.location.href = `/setresources?email=${email}&cpu=${cpu}&ram=${ram}&disk=${disk}&backup=${backup}&database=${database}&allocation=${allocation}`;
             };
           </script>
         </div>

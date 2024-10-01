@@ -225,13 +225,12 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
 });
 
 // Set & Add resources
-// add allocations
 router.get('/addresources', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
-            const { email, cpu, ram, disk, backup, database } = req.query;
-            if (!email || !cpu || !ram || !disk || !backup || !database) return res.redirect('/admin?err=INVALIDPARAMS');
+            const { email, cpu, ram, disk, backup, database, allocation } = req.query;
+            if (!email || !cpu || !ram || !disk || !backup || !database || !allocation) return res.redirect('/admin?err=INVALIDPARAMS');
 
 			// Resource amounts
             let cpuAmount = parseInt(cpu) * 100;
@@ -239,9 +238,10 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
             let diskAmount = parseInt(disk) * 1024;
             let backupAmount = parseInt(backup);
             let databaseAmount = parseInt(database);
+            let allocationAmount = parseInt(database);
 
 			// Ensure amount are numbers
-            if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
+            if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount) || isNaN(allocationAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
 
 			// Current resources
             let currentCpu = parseInt(await db.get(`cpu-${email}`)) || 0;
@@ -249,6 +249,7 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
             let currentDisk = parseInt(await db.get(`disk-${email}`)) || 0;
             let currentBackup = parseInt(await db.get(`backup-${email}`)) || 0;
             let currentDatabase = parseInt(await db.get(`database-${email}`)) || 0;
+            let currentAllocation = parseInt(await db.get(`allocation-${email}`)) || 0;
 
 			// Update resources
             await db.set(`cpu-${email}`, currentCpu + cpuAmount);
@@ -256,10 +257,11 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
             await db.set(`disk-${email}`, currentDisk + diskAmount);
             await db.set(`backup-${email}`, currentBackup + backupAmount);
             await db.set(`database-${email}`, currentDatabase + databaseAmount);
+            await db.set(`allocation-${email}`, currentAllocation + allocationAmount);
 
             logToDiscord(
                 "add resources",
-                `${req.user.username} has add resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\`\`\`!`
+                `${req.user.username} has add resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\nAllocation: ${allocation}\`\`\`!`
             );
             log(`${req.user.username} has add resources for ${email} !`);
 
@@ -278,8 +280,8 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
-            const { email, cpu, ram, disk, backup, database } = req.query;
-            if (!email || !cpu || !ram || !disk || !backup || !database) return res.redirect('/admin?err=INVALIDPARAMS');
+            const { email, cpu, ram, disk, backup, database, allocation } = req.query;
+            if (!email || !cpu || !ram || !disk || !backup || !database || !allocation) return res.redirect('/admin?err=INVALIDPARAMS');
 
 			// Resource amounts
             let cpuAmount = parseInt(cpu) * 100;
@@ -287,9 +289,10 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
             let diskAmount = parseInt(disk) * 1024;
             let backupAmount = parseInt(backup);
             let databaseAmount = parseInt(database);
+            let allocationAmount = parseInt(allocation);
 
 			// Ensure amount are numbers
-            if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
+            if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount) || isNaN(allocationAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
 
 			// Update resources
             await db.set(`cpu-${email}`, cpuAmount);
@@ -297,10 +300,11 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
             await db.set(`disk-${email}`, diskAmount);
             await db.set(`backup-${email}`, backupAmount);
             await db.set(`database-${email}`, databaseAmount);
+            await db.set(`database-${email}`, allocationAmount);
 
             logToDiscord(
                 "set resources",
-                `${req.user.username} has set resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\`\`\`!`
+                `${req.user.username} has set resources for ${email} with : \n\`\`\`CPU: ${cpu}%\nMemory: ${ram} MB\nDisk: ${disk} MB\nBackup: ${backup}\nDatabase: ${database}\nAllocation: ${allocation}\`\`\`!`
             );
             log(`${req.user.username} has set resources for ${email} !`);
 
