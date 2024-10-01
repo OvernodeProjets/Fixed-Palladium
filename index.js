@@ -131,7 +131,6 @@ app.use(async (req, res, next) => {
   next();
 }});
 
-
 // Require the routes
 let allRoutes = fs.readdirSync('./app');
 for (let i = 0; i < allRoutes.length; i++) {
@@ -146,6 +145,4 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // Start the server
-app.listen(process.env.APP_PORT || 3000, () => {
-  console.log(`Fixed-Palladium has been started on ${process.env.APP_URL} !`);
-});
+app.listen(process.env.APP_PORT || 3000, () => console.log(`Fixed-Palladium has been started on ${process.env.APP_URL} !`));

@@ -52,7 +52,7 @@ router.ws('/afkwspath', async (ws, req) => {
 	                if (time <= 0) {
 	                    time = timeConf;
 	                    ws.send(JSON.stringify({ "type": "coin" }));
-	                    let r = parseInt((await db.get(`coins-${req.user.email}`))) + 1;
+	                    let r = parseInt(await db.get(`coins-${req.user.email}`)) + 1;
 	                    await db.set(`coins-${req.user.email}`, r);
 	                }
 	                ws.send(JSON.stringify({ "type": "count", "amount": time }));

@@ -77,7 +77,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                         acc[variable.attributes.env_variable] = variable.attributes.default_value;
                         return acc;
                     }, {}),
-                    limitsRessources: {
+                    limitsResources: {
                         cpu: 100,
                         memory: 1024,
                         disk: 1024

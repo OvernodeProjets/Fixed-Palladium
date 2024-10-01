@@ -9,7 +9,7 @@
       "SERVER_JARFILE": "server.jar",
       "BUILD_NUMBER": "latest"
     },
-    "limitsRessources": {
+    "limitsResources": {
       "cpu": 1,
       "memory": 1024,
       "disk": 1024

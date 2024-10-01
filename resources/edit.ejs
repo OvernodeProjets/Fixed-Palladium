@@ -15,7 +15,7 @@
               <p class="font-bold">Missing Parameters</p>
               <p class="text-sm relative">All inputs must be filled out in order for you to create a server.</p>
             </div>
-            <span onclick="location.href = '../edit';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -34,7 +34,7 @@
               <p class="font-bold">Invalid Characters</p>
               <p class="text-sm relative">One of your inputs has invalid characters in it.</p>
             </div>
-            <span onclick="location.href = '../edit';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -79,7 +79,64 @@
               </span>
             </div>
           </div>
-          <% } %>
+          <% } %> <% if (req.query.err=="LIMITRESOURCESCPU" ) { %>
+            <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
+              <div class="flex">
+                <div class="py-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">CPU Limit Exceeded</p>
+                  <p class="text-sm relative">The CPU allocation exceeds the allowed limit for this egg.</p>
+                </div>
+                <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <% } %> <% if (req.query.err=="LIMITRESOURCESRAM" ) { %>
+            <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
+              <div class="flex">
+                <div class="py-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">RAM Limit Exceeded</p>
+                  <p class="text-sm relative">The RAM allocation exceeds the allowed limit for this egg.</p>
+                </div>
+                <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <% } %> <% if (req.query.err=="LIMITRESOURCESDISK" ) { %>
+            <div class="bg-red-900/50 border-l-4 border-red-400 rounded-lg text-red-100 px-4 py-3 relative mb-8" role="alert">
+              <div class="flex">
+                <div class="py-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">Disk Limit Exceeded</p>
+                  <p class="text-sm relative">The disk allocation exceeds the allowed limit for this egg.</p>
+                </div>
+                <span onclick="location.href = '../dashboard';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <% } %>
         <div>
           <div class="md:grid md:grid-cols-3 md:gap-6">
             <div class="md:col-span-1">

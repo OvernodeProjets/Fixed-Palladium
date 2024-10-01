@@ -103,12 +103,12 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     const egg = eggs.find(e => e.id === eggId);
     if (!egg) return res.redirect('../create-server?err=INVALID_EGG');
 
-    const limitsRessources = egg.limitsRessources;
+    const limitsResources = egg.limitsResources;
 
     // Check if requested resources exceed the egg's limits
-    if (parseInt(req.query.cpu) > limitsRessources.cpu) return res.redirect('../create-server?err=LIMITRESOURCES_CPU');
-    if (parseInt(req.query.ram) > limitsRessources.memory) return res.redirect('../create-server?err=LIMITRESOURCES_RAM');
-    if (parseInt(req.query.disk) > limitsRessources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
+    if (parseInt(req.query.cpu) > limitsResources.cpu) return res.redirect('../create-server?err=LIMITRESOURCES_CPU');
+    if (parseInt(req.query.ram) > limitsResources.memory) return res.redirect('../create-server?err=LIMITRESOURCES_RAM');
+    if (parseInt(req.query.disk) > limitsResources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
 
     // Check if user has enough resources left
     if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');
@@ -228,11 +228,11 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
     const egg = eggs.find(e => e.id === eggId);
     if (!egg) return res.redirect('../edit-server?err=INVALID_EGG');
 
-    const limitsRessources = egg.limitsRessources;
+    const limitsResources = egg.limitsResources;
 
-    if (parseInt(req.query.cpu) > limitsRessources.cpu) return res.redirect('../edit-server?err=LIMITRESOURCESCPU');
-    if (parseInt(req.query.ram) > limitsRessources.memory) return res.redirect('../edit-server?err=LIMITRESOURCESRAM');
-    if (parseInt(req.query.disk) > limitsRessources.disk) return res.redirect('../edit-server?err=LIMITRESOURCESDISK');
+    if (parseInt(req.query.cpu) > limitsResources.cpu) return res.redirect('../edit-server?err=LIMITRESOURCESCPU');
+    if (parseInt(req.query.ram) > limitsResources.memory) return res.redirect('../edit-server?err=LIMITRESOURCESRAM');
+    if (parseInt(req.query.disk) > limitsResources.disk) return res.redirect('../edit-server?err=LIMITRESOURCESDISK');
 
     if (parseInt(req.query.cpu) > parseInt(max.cpu)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
     if (parseInt(req.query.ram) > parseInt(max.ram)) return res.redirect('../edit-server?err=NOTENOUGHRESOURCES');
