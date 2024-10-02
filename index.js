@@ -144,5 +144,20 @@ app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1d' // Cache static assets for 1 day
 }));
 
+// Auto Set
+async function autoSet() {
+  const settings = await db.get('settings');
+
+  if (!settings || !settings.joinGuildEnabled || !settings.joinGuildID) {
+    const defaultSettings = {
+      joinGuildEnabled: false,
+      joinGuildID: ""
+    };
+    await db.set('settings', defaultSettings);
+  }
+}
+
+autoSet();
+
 // Start the server
 app.listen(process.env.APP_PORT || 3000, () => console.log(`Fixed-Palladium has been started on ${process.env.APP_URL} !`));

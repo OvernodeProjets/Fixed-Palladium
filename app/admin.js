@@ -36,10 +36,13 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
     try {
         if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
+            const settings = await db.get('settings');
+
             res.render('admin', {
                 req, // Request (queries)
                 user: req.user, // User info
                 name: process.env.APP_NAME, // App name
+                settings: settings || {}, // Database
                 coins: await db.get(`coins-${req.user.email}`), // User's coins
                 admin: await db.get(`admin-${req.user.email}`) // Admin status
             });
@@ -365,6 +368,39 @@ router.get('/unban', ensureAuthenticated, async (req, res) => {
     } catch (error) {
 		logError('Error loading unban page.', error);
         res.redirect('/dashboard?err=INTERNALERROR');
+    }
+});
+
+// Settings
+router.post('/admin/settings/joinGuildEnabled', ensureAuthenticated, async (req, res) => {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            const { joinGuildEnabled } = req.body;
+            const settings = await db.get('settings');
+            settings.joinGuildEnabled = joinGuildEnabled;
+            await db.set('settings', settings);
+            res.status(200).send('Settings updated');
+        } catch (error) {
+            logError('Error updating joinGuildEnabled setting.', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
+router.post('/admin/settings/joinGuildID', ensureAuthenticated, async (req, res) => {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            const { joinGuildID } = req.body;
+            const settings = await db.get('settings');
+            settings.joinGuildID = `${joinGuildID}`;
+            await db.set('settings', settings);
+            res.status(200).send('Settings updated');
+        } catch (error) {
+            logError('Error updating joinGuildID setting.', error);
+            res.status(500).send('Internal Server Error');
+        }
     }
 });
 

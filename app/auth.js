@@ -84,20 +84,23 @@ async function checkAccount(email, username, id, access_token) {
             log('User object created.');
         }
       }
-
-      try {
-        await axios.put(`https://discord.com/api/guilds/${process.env.DISCORD_GUILD_ID}/members/${id}`, {
-          access_token
-        }, {
-          headers: {
-            'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-    
-      } catch (error) {
-          console.error('Error adding to Discord server:', error.response ? error.response.data : error.message);
-          logError('Failed to add user to Discord server', error);
+      
+      const settings = await db.get('settings');
+      if (settings.joinGuildEnabled) {
+        try {
+          await axios.put(`https://discord.com/api/guilds/${process.env.DISCORD_GUILD_ID}/members/${settings.joinGuildID}`, {
+            access_token
+          }, {
+            headers: {
+              'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+        
+        } catch (error) {
+            console.error('Error adding to Discord server:', error.response ? error.response.data : error.message);
+            logError('Failed to add user to Discord server', error);
+        }
       }
 
       // Set userID in the database
