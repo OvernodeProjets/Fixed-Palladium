@@ -511,6 +511,38 @@
       
         <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
 
+          <h2 class="text-white font-bold">Maintenance</h2>
+          <p class="text-gray-400">Set an maintenance mode</p>
+      
+          <br/>
+      
+          <a onclick="maintenance()" id="toggleButtonMaintenance" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Enable </a>
+      
+          <script>
+            let maintenanceEnabled = <%= settings.maintenance ? 'true' : 'false' %>;
+            const button2 = document.getElementById('toggleButtonMaintenance');
+          
+            if (maintenanceEnabled) {
+              button2.innerText = 'Disable';
+            } else {
+              button2.innerText = 'Enable';
+            }
+          
+            async function maintenance() {
+              maintenanceEnabled = !maintenanceEnabled;
+              
+              const response = await fetch('/admin/settings/maintenanceEnabled', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ maintenanceEnabled })
+              });
+          
+              if (response.ok) {
+                button2.innerText = maintenanceEnabled ? 'Disable' : 'Enable';
+              }
+            }
+          </script>
+
         </div>
       </div>
       <script>

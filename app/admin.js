@@ -404,4 +404,20 @@ router.post('/admin/settings/joinGuildID', ensureAuthenticated, async (req, res)
     }
 });
 
+router.post('/admin/settings/maintenanceEnabled', ensureAuthenticated, async (req, res) => {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            const { maintenanceEnabled } = req.body;
+            const settings = await db.get('settings');
+            settings.maintenance = maintenanceEnabled;
+            await db.set('settings', settings);
+            res.status(200).send('Settings updated');
+        } catch (error) {
+            logError('Error updating maintenanceEnabled setting.', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
 module.exports = router;

@@ -142,6 +142,12 @@ router.get('/login/discord', passport.authenticate('discord'));
 router.get('/callback/discord', passport.authenticate('discord', {
   failureRedirect: '/'
 }), async (req, res) => {
+  let settings = await db.get('settings');
+  const isAdmin = await db.get(`admin-${req.user.email}`) == true;
+  if (settings.maintenance && !isAdmin) {
+    return res.redirect('/?err=MAINTENANCE')
+  }
+
   await checkAccount(req.user.email, req.user.username, req.user.id, req.user.accessToken);
   return res.redirect(req.session.returnTo || '/dashboard');
 });

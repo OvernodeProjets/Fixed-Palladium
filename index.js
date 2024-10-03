@@ -148,12 +148,24 @@ app.use(express.static(path.join(__dirname, 'public'), {
 async function autoSet() {
   const settings = await db.get('settings');
 
-  if (!settings || !settings.joinGuildEnabled || !settings.joinGuildID) {
+  if (!settings) {
     const defaultSettings = {
       joinGuildEnabled: false,
-      joinGuildID: ""
+      joinGuildID: "",
+      maintenance: false
     };
     await db.set('settings', defaultSettings);
+  } else {
+    if (!settings.joinGuildEnabled) {
+      settings.joinGuildEnabled = false;
+    }
+    if (!settings.joinGuildID) {
+      settings.joinGuildID = "";
+    }
+    if (!settings.maintenance) {
+      settings.maintenance = false;
+    }
+    await db.set('settings', settings);
   }
 }
 
