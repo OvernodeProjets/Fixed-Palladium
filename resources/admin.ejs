@@ -516,7 +516,7 @@
       
           <br/>
       
-          <a onclick="maintenance()" id="toggleButtonMaintenance" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Enable </a>
+          <a onclick="toggleMaintenance()" id="toggleButtonMaintenance" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Enable </a>
       
           <script>
             let maintenanceEnabled = <%= settings.maintenance ? 'true' : 'false' %>;
@@ -528,7 +528,7 @@
               button2.innerText = 'Enable';
             }
           
-            async function maintenance() {
+            async function toggleMaintenance() {
               maintenanceEnabled = !maintenanceEnabled;
               
               const response = await fetch('/admin/settings/maintenanceEnabled', {
@@ -539,6 +539,67 @@
           
               if (response.ok) {
                 button2.innerText = maintenanceEnabled ? 'Disable' : 'Enable';
+              }
+            }
+          </script>
+
+        </div>
+
+        <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0 pt-10">
+
+          <h2 class="text-white font-bold">Daily Coins</h2>
+          <p class="text-gray-400">Setup your daily coins</p>
+      
+          <br/>
+      
+          <label for="dailycoins-amount" class="block text-sm font-medium text-gray-400">Amount</label>
+          <div class="mt-1 flex rounded-md shadow-sm w-80">
+            <input type="text" name="dailycoins-amount" id="dailycoins-amount" class="transition ease-in-out delay-100 block w-80 flex-1 text-white rounded-md bg-gray-700 border-gray-600/75 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="10" required/>
+          </div>
+    
+          <br/>
+      
+          <a onclick="dailyCoinsAmount()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Update </a>
+
+          <a onclick="toggleDailyCoins()" id="toggleButtonDailyCoins" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"> Enable </a>
+      
+          <script>
+            let dailyCoinsEnabledB = <%= settings.dailyCoinsEnabled ? 'true' : 'false' %>;
+            const button3 = document.getElementById('toggleButtonDailyCoins');
+          
+            if (dailyCoinsEnabledB) {
+              button3.innerText = 'Disable';
+            } else {
+              button3.innerText = 'Enable';
+            }
+          
+            async function toggleDailyCoins() {
+              dailyCoinsEnabledB = !dailyCoinsEnabledB;
+              
+              const response = await fetch('/admin/settings/dailyCoinsEnabled', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dailyCoinsEnabledB })
+              });
+          
+              if (response.ok) {
+                button3.innerText = dailyCoinsEnabledB ? 'Disable' : 'Enable';
+              }
+            }
+
+            async function dailyCoinsAmount() {
+              let dailyCoinsAmount = encodeURIComponent(document.getElementById("dailycoins-amount").value)
+              if (dailyCoinsAmount && dailyCoinsAmount != "") {
+                const response = await fetch('/admin/settings/dailyCoinsAmount', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ dailyCoinsAmount })
+                });
+                if (response.ok) {
+                  window.location.href = window.location.pathname + '?err=COMPLETE';
+                } else {
+                  console.error('Error:', response.status);
+                }
               }
             }
           </script>

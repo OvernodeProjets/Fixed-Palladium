@@ -71,6 +71,15 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
     const existing = await existingResources(req.user.email);
     const max = await maxResources(req.user.email);
 
+    const settings = await db.get('settings');
+    const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
+    const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const dailyCoins = {
+      dailyCoinsAmount: settings.dailyCoins,
+      lastClaimDate,
+      today,
+      enabled: settings.dailyCoinsEnabled
+    }
     res.render('dashboard', { 
       req, // Request (queries)
       user: req.user, // User info
@@ -79,7 +88,8 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       servers, // Servers the user owns
       existing, // Existing resources
-      max // Max resources,
+      max, // Max resources
+      dailyCoins
     });
   } catch (error) {
     logError('Error loading dashboard.', error);

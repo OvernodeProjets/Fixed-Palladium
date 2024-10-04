@@ -420,4 +420,36 @@ router.post('/admin/settings/maintenanceEnabled', ensureAuthenticated, async (re
     }
 });
 
+router.post('/admin/settings/dailyCoinsEnabled', ensureAuthenticated, async (req, res) => {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            const { dailyCoinsEnabled } = req.body;
+            const settings = await db.get('settings');
+            settings.dailyCoinsEnabled = dailyCoinsEnabled;
+            await db.set('settings', settings);
+            res.status(200).send('Settings updated');
+        } catch (error) {
+            logError('Error updating dailyCoinsEnabled setting.', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
+router.post('/admin/settings/dailyCoinsAmount', ensureAuthenticated, async (req, res) => {
+    if (await db.get(`admin-${req.user.email}`) == true) {
+        try {
+            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            const { dailyCoinsAmount } = req.body;
+            const settings = await db.get('settings');
+            settings.dailyCoins = `${dailyCoinsAmount}`;
+            await db.set('settings', settings);
+            res.status(200).send('Settings updated');
+        } catch (error) {
+            logError('Error updating dailyCoinsAmount setting.', error);
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
 module.exports = router;

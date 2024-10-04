@@ -152,7 +152,9 @@ async function autoSet() {
     const defaultSettings = {
       joinGuildEnabled: false,
       joinGuildID: "",
-      maintenance: false
+      maintenance: false,
+      dailyCoinsEnabled: false,
+      dailyCoins: "10"
     };
     await db.set('settings', defaultSettings);
   } else {
@@ -164,6 +166,12 @@ async function autoSet() {
     }
     if (!settings.maintenance) {
       settings.maintenance = false;
+    }
+    if (!settings.dailyCoinsEnabled) {
+      settings.dailyCoinsEnabled = false;
+    }
+    if (!settings.dailyCoins) {
+      settings.dailyCoins = "10";
     }
     await db.set('settings', settings);
   }

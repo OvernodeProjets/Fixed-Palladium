@@ -298,4 +298,28 @@ router.get('/buyplan', ensureAuthenticated, async (req, res) => {
     }
 });
 
+router.get('/dailycoins', ensureAuthenticated, async (req, res) => {
+    try {
+        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+
+        const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
+        const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+		const settings = await db.get('settings');
+
+        if (lastClaimDate !== today || !lastClaimDate && settings.dailyCoinsEnabled) {
+            let currentCoins = parseInt(await db.get(`coins-${req.user.email}`)) || 0;
+            currentCoins += settings.dailyCoins;
+            await db.set(`coins-${req.user.email}`, currentCoins);
+            await db.set(`last-claim-${req.user.email}`, today);
+
+            res.redirect('/dashboard?success=DAILYCOINSCLAIMED');
+        } else if (lastClaimDate === today) {
+            res.redirect('/dashboard?err=ALREADYCLAIMED');
+        }
+    } catch (error) {
+        logError('Error claiming daily coins.', error);
+        res.redirect('/dashboard?err=INTERNALERROR');
+    }
+});
+
 module.exports = router;

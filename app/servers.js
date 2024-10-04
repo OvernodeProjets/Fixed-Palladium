@@ -75,7 +75,7 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
 
     logToDiscord(
       "deleted server",
-      `${req.user.username} has deleted server with : \n\`\`\`Name: ${server.data.attributes.name}%\nCPU: ${server.data.attributes.limits.cpu}%\nMemory: ${server.data.attributes.limits.ram} MB\nDisk: ${server.data.attributes.limits.disk} MB\nBackup: ${server.data.attributes.feature_limits.backups}\nDatabase: ${server.data.attributes.feature_limits.database}\nAllocation: ${server.data.attributes.feature_limits.allocation}\`\`\`!`
+      `${req.user.username} has deleted server with : \n\`\`\`Name: ${server.data.attributes.name}%\nCPU: ${server.data.attributes.limits.cpu}%\nMemory: ${server.data.attributes.limits.ram} MB\nDisk: ${server.data.attributes.limits.disk} MB\nBackup: ${server.data.attributes.feature_limits.backups || 0}\nDatabase: ${server.data.attributes.feature_limits.database || 0}\nAllocation: ${server.data.attributes.feature_limits.allocation || 0}\`\`\`!`
     );
     log(`${req.user.username} has deleted server`);
 
