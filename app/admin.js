@@ -42,7 +42,7 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
                 req, // Request (queries)
                 user: req.user, // User info
                 name: process.env.APP_NAME, // App name
-                settings: settings || {}, // Database
+                settings: settings || {}, // Settings
                 coins: await db.get(`coins-${req.user.email}`), // User's coins
                 admin: await db.get(`admin-${req.user.email}`) // Admin status
             });

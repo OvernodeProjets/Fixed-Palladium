@@ -29,9 +29,34 @@ if (!process.env.ADMIN_USERS) {
   }
 }
 
+// Auto Set
+async function autoSet() {
+  const settings = await db.get('settings') || {};
+
+  const defaultSettings = {
+    joinGuildEnabled: false,
+    joinGuildID: "",
+    maintenance: false,
+    dailyCoinsEnabled: false,
+    dailyCoins: "10"
+  };
+
+  for (const key in defaultSettings) {
+    if (!(key in settings)) {
+      settings[key] = defaultSettings[key];
+    }
+  }
+
+  await db.set('settings', settings);
+}
+
+autoSet();
+
 // Setup ejs as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/resources'));
+
+// Trust proxy setting
 app.set('trust proxy', 1);
 
 // Setup rateLimit
@@ -139,45 +164,15 @@ for (let i = 0; i < allRoutes.length; i++) {
   app.use('/', route);
 }
 
+// 404 handler
+app.get('*', (req, res) => {
+  res.status(404).send('404');
+});
+
 // Serve static files (after VPN detection)
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1d' // Cache static assets for 1 day
 }));
-
-// Auto Set
-async function autoSet() {
-  const settings = await db.get('settings');
-
-  if (!settings) {
-    const defaultSettings = {
-      joinGuildEnabled: false,
-      joinGuildID: "",
-      maintenance: false,
-      dailyCoinsEnabled: false,
-      dailyCoins: "10"
-    };
-    await db.set('settings', defaultSettings);
-  } else {
-    if (!settings.joinGuildEnabled) {
-      settings.joinGuildEnabled = false;
-    }
-    if (!settings.joinGuildID) {
-      settings.joinGuildID = "";
-    }
-    if (!settings.maintenance) {
-      settings.maintenance = false;
-    }
-    if (!settings.dailyCoinsEnabled) {
-      settings.dailyCoinsEnabled = false;
-    }
-    if (!settings.dailyCoins) {
-      settings.dailyCoins = "10";
-    }
-    await db.set('settings', settings);
-  }
-}
-
-autoSet();
 
 // Start the server
 app.listen(process.env.APP_PORT || 3000, () => console.log(`Fixed-Palladium has been started on ${process.env.APP_URL} !`));
