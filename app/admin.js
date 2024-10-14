@@ -81,9 +81,16 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
                         return acc;
                     }, {}),
                     limitsResources: {
-                        cpu: 100,
-                        memory: 1024,
-                        disk: 1024
+                        max : {
+                          cpu: 1,
+                          memory: 1024,
+                          disk: 1024
+                        },
+                        min: {
+                          cpu: 1,
+                          memory: 512,
+                          disk: 512
+                        }
                     }
                 }));
 

@@ -103,12 +103,17 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     const egg = eggs.find(e => e.id === eggId);
     if (!egg) return res.redirect('../create-server?err=INVALID_EGG');
 
-    const limitsResources = egg.limitsResources;
+    const maxLimitsResources = egg.limitsResources.max;
+    const minLimitsResources = egg.limitsResources.min;
 
     // Check if requested resources exceed the egg's limits
-    if (parseInt(req.query.cpu) > limitsResources.cpu) return res.redirect('../create-server?err=LIMITRESOURCES_CPU');
-    if (parseInt(req.query.ram) > limitsResources.memory) return res.redirect('../create-server?err=LIMITRESOURCES_RAM');
-    if (parseInt(req.query.disk) > limitsResources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
+    if (parseInt(req.query.cpu) > maxLimitsResources.cpu) return res.redirect('../create-server?err=LIMITRESOURCES_CPU');
+    if (parseInt(req.query.ram) > maxLimitsResources.memory) return res.redirect('../create-server?err=LIMITRESOURCES_RAM');
+    if (parseInt(req.query.disk) > maxLimitsResources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
+
+    if (parseInt(req.query.cpu) < minLimitsResources.cpu) return res.redirect('../create-server?err=LIMITRESOURCES_CPU');
+    if (parseInt(req.query.ram) < minLimitsResources.memory) return res.redirect('../create-server?err=LIMITRESOURCES_RAM');
+    if (parseInt(req.query.disk) < minLimitsResources.disk) return res.redirect('../create-server?err=LIMITRESOURCES_DISK');
 
     // Check if user has enough resources left
     if (parseInt(req.query.cpu) > parseInt(max.cpu - existing.cpu)) return res.redirect('../create-server?err=NOTENOUGHRESOURCES');

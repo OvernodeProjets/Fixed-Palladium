@@ -304,11 +304,12 @@ router.get('/dailycoins', ensureAuthenticated, async (req, res) => {
 
         const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
         const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-		const settings = await db.get('settings');
+        const settings = await db.get('settings');
 
-        if (lastClaimDate !== today || !lastClaimDate && settings.dailyCoinsEnabled) {
+        if ((!lastClaimDate|| lastClaimDate !== today ) && settings.dailyCoinsEnabled) {
             let currentCoins = parseInt(await db.get(`coins-${req.user.email}`)) || 0;
-            currentCoins += settings.dailyCoins;
+            let dailyCoins = parseInt(settings.dailyCoins) || 0;
+            currentCoins += dailyCoins;
             await db.set(`coins-${req.user.email}`, currentCoins);
             await db.set(`last-claim-${req.user.email}`, today);
 
