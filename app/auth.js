@@ -444,15 +444,6 @@ router.get('/remove-account', ensureAuthenticated, async (req, res) => {
       }
     });
 
-    await db.delete(`plan-${req.user.email}`);
-    await db.delete(`cpu-${req.user.email}`);
-    await db.delete(`ram-${req.user.email}`);
-    await db.delete(`disk-${req.user.email}`);
-    await db.delete(`database-${req.user.email}`);
-    await db.delete(`backup-${req.user.email}`);
-    await db.delete(`server-${req.user.email}`);
-    await db.delete(`allocation-${req.user.email}`);
-
     await db.delete(`user-${req.user.email}`);
 
     logToDiscord(
