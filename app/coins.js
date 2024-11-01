@@ -251,11 +251,8 @@ router.get('/dailycoins', ensureAuthenticated, async (req, res) => {
         if (!req.user || !req.user.email) return res.redirect('/login/discord');
 
         const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
-		console.log("Last Claim Date:", lastClaimDate);
         const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-		console.log("Today's Date:", today);
         const settings = await db.get('settings');
-		console.log("Settings:", settings);
 
 		if (!settings || typeof settings.dailyCoinsEnabled === 'undefined') {
             console.log("Settings not properly defined");

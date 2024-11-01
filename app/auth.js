@@ -247,7 +247,7 @@ router.get('/callback/discord', passport.authenticate('discord', {
     if (settings.maintenance && !isAdmin) {
       return res.redirect('/?err=MAINTENANCE');
     }
-    console.log(req.user);
+    
     await checkAccount(req.user.email, req.user.username, req.user.id, req.user.accessToken, req.user.avatar);
     return res.redirect(req.session.returnTo || '/dashboard');
   } catch (error) {

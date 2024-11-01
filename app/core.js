@@ -81,7 +81,7 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
       today,
       enabled: settings.dailyCoinsEnabled
     }
-    console.log(req.user)
+    
     res.render('dashboard', { 
       req, // Request (queries)
       user: req.user, // User info
