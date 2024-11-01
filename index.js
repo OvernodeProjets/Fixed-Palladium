@@ -166,7 +166,10 @@ for (let i = 0; i < allRoutes.length; i++) {
 
 // 404 handler
 app.get('*', (req, res) => {
-  res.status(404).send('404');
+  res.render('404', { 
+    req, // Request (queries)
+    name: process.env.APP_NAME, // Dashboard name
+  });
 });
 
 // Serve static files (after VPN detection)

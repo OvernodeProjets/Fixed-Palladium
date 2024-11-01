@@ -51,10 +51,11 @@ function ensureAuthenticated(req, res, next) {
 
 // Delete server
 router.get('/delete', ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.user || !req.user.email) return res.redirect('/login/discord');
   if (!req.query.id) return res.redirect('../dashboard?err=MISSINGPARAMS');
   try {
-    const userId = await db.get(`id-${req.user.email}`);
+    const user = await db.get(`user-${req.user.email}`);
+    const userId = user.id;
     const serverId = req.query.id;
 
     const server = await axios.get(`${provider.url}/api/application/servers/${serverId}`, {
@@ -89,7 +90,7 @@ router.get('/delete', ensureAuthenticated, async (req, res) => {
 
 // Create server
 router.get('/create', ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.user || !req.user.email) return res.redirect('/login/discord');
   if (!req.query.name || !req.query.location || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup || !req.query.allocation) return res.redirect('../create-server?err=MISSINGPARAMS');
 
   try {
@@ -136,7 +137,8 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
     if (isNaN(req.query.location) || isNaN(req.query.egg) || isNaN(req.query.cpu) || isNaN(req.query.ram) || isNaN(req.query.disk) || isNaN(req.query.database) || isNaN(req.query.backup) || isNaN(req.query.allocation)) return res.redirect('../create-server?err=INVALID');
     if (req.query.cpu < 1 || req.query.ram < 1 || req.query.disk < 1) return res.redirect('../create-server?err=INVALID');
 
-    const userId = await db.get(`id-${req.user.email}`);
+    const user = await db.get(`user-${req.user.email}`);
+    const userId = user.id;
     const name = req.query.name;
     const location = parseInt(req.query.location);
     const cpu = parseInt(req.query.cpu);
@@ -196,13 +198,14 @@ router.get('/create', ensureAuthenticated, async (req, res) => {
 });
 
 router.get('/create-server', ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.user || !req.user.email) return res.redirect('/login/discord');
+    const user = await db.get(`user-${req.user.email}`);
     res.render('create', {
       req, // Requests (queries) 
       user: req.user, // User info (if logged in)
       name: process.env.APP_NAME, // Dashboard name
+      coins: user.coins, // Coins
       admin: await db.get(`admin-${req.user.email}`), // Admin status
-      coins: await db.get(`coins-${req.user.email}`), // Coins
       eggs: getEggs(), // Eggs data
       locations: getLocations() // Locations data
     });
@@ -210,11 +213,12 @@ router.get('/create-server', ensureAuthenticated, async (req, res) => {
 
 // Edit server
 router.get('/edit', ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+  if (!req.user || !req.user.email) return res.redirect('/login/discord');
   if (!req.query.id || !req.query.name || !req.query.egg || !req.query.cpu || !req.query.ram || !req.query.disk || !req.query.database || !req.query.backup || !req.query.allocation) return res.redirect('../dashboard?err=MISSINGPARAMS');
 
   try {
-    const userId = await db.get(`id-${req.user.email}`);
+    const user = await db.get(`user-${req.user.email}`);
+    const userId = user.id;
     const serverId = req.query.id;
 
     const server = await axios.get(`${provider.url}/api/application/servers/${serverId}`, {
@@ -287,9 +291,10 @@ router.get('/edit', ensureAuthenticated, async (req, res) => {
 
 router.get('/edit-server', ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (!req.user || !req.user.email) return res.redirect('/login/discord');
     if (!req.query.id) return res.redirect('/dashboard');
-        const userId = await db.get(`id-${req.user.email}`);
+      const user = await db.get(`user-${req.user.email}`);
+      const userId = user.id;
         const server = await axios.get(`${provider.url}/api/application/servers/${req.query.id}`, {
           headers: {    
            'Authorization': `Bearer ${provider.key}`,
@@ -301,8 +306,8 @@ router.get('/edit-server', ensureAuthenticated, async (req, res) => {
         req: req, // Requests (queries) 
         user: req.user, // User info (if logged in)
         name: process.env.APP_NAME, // Dashboard name
+        coins: user.coins, // Coins
         admin: await db.get(`admin-${req.user.email}`), // Admin status
-        coins: await db.get(`coins-${req.user.email}`), // Coins
         server: server.data.attributes, // Server the user owns
         eggs: getEggs() // Eggs data
       });

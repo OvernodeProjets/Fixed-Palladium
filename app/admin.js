@@ -34,16 +34,17 @@ function ensureAuthenticated(req, res, next) {
 // Admin
 router.get('/admin', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const settings = await db.get('settings');
+            const user = await db.get(`user-${req.user.email}`);
 
             res.render('admin', {
                 req, // Request (queries)
                 user: req.user, // User info
                 name: process.env.APP_NAME, // App name
                 settings: settings || {}, // Settings
-                coins: await db.get(`coins-${req.user.email}`), // User's coins
+                coins: user.coins, // User's coins
                 admin: await db.get(`admin-${req.user.email}`) // Admin status
             });
         } else {
@@ -58,7 +59,7 @@ router.get('/admin', ensureAuthenticated, async (req, res) => {
 // Scan eggs & locations
 router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             try {
                 const response = await axios.get(`${provider.url}/api/application/nests/1/eggs?include=nest,variables`, {
@@ -129,7 +130,7 @@ router.get('/scaneggs', ensureAuthenticated, async (req, res) => {
 
 router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             try {
                 const response = await axios.get(`${provider.url}/api/application/locations`, {
@@ -182,14 +183,17 @@ router.get('/scanlocations', ensureAuthenticated, async (req, res) => {
 // Set & Add coins
 router.get('/addcoins', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email, amount } = req.query;
 
             if (!email || !amount) return res.redirect('/admin?err=INVALIDPARAMS');
 
-            let amountParse = parseInt((await db.get(`coins-${email}`))) + parseInt(amount);
-            await db.set(`coins-${email}`, amountParse);
+            const user = await db.get(`user-${email}`);
+
+            let amountParse = parseInt((user.coins)) + parseInt(amount);
+            user.coins = amountParse;
+            await db.set(`user-${email}`, user);
 
             logToDiscord(
                 "add coins",
@@ -209,14 +213,17 @@ router.get('/addcoins', ensureAuthenticated, async (req, res) => {
 
 router.get('/setcoins', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email, amount } = req.query;
 
             if (!email || !amount) return res.redirect('/admin?err=INVALIDPARAMS');
 
+            const user = await db.get(`user-${email}`);
+
             let amountParse = parseInt(amount);
-            await db.set(`coins-${email}`, amountParse);
+            user.coins = amountParse;
+            await db.set(`user-${email}`, user);
 
             logToDiscord(
                 "set coins",
@@ -237,7 +244,7 @@ router.get('/setcoins', ensureAuthenticated, async (req, res) => {
 // Set & Add resources
 router.get('/addresources', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email, cpu, ram, disk, backup, database, allocation } = req.query;
             if (!email || !cpu || !ram || !disk || !backup || !database || !allocation) return res.redirect('/admin?err=INVALIDPARAMS');
@@ -254,20 +261,27 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
             if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount) || isNaN(allocationAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
 
 			// Current resources
-            let currentCpu = parseInt(await db.get(`cpu-${email}`)) || 0;
-            let currentRam = parseInt(await db.get(`ram-${email}`)) || 0;
-            let currentDisk = parseInt(await db.get(`disk-${email}`)) || 0;
-            let currentBackup = parseInt(await db.get(`backup-${email}`)) || 0;
-            let currentDatabase = parseInt(await db.get(`database-${email}`)) || 0;
-            let currentAllocation = parseInt(await db.get(`allocation-${email}`)) || 0;
+            const user = await db.get(`user-${email}`);
+            const resources = user.resources;
+
+            let currentCpu = parseInt(resources.cpu) || 0;
+            let currentRam = parseInt(resources.ram) || 0;
+            let currentDisk = parseInt(resources.disk) || 0;
+            let currentBackup = parseInt(resources.backup) || 0;
+            let currentDatabase = parseInt(resources.database) || 0;
+            let currentAllocation = parseInt(resources.allocation) || 0;
 
 			// Update resources
-            await db.set(`cpu-${email}`, currentCpu + cpuAmount);
-            await db.set(`ram-${email}`, currentRam + ramAmount);
-            await db.set(`disk-${email}`, currentDisk + diskAmount);
-            await db.set(`backup-${email}`, currentBackup + backupAmount);
-            await db.set(`database-${email}`, currentDatabase + databaseAmount);
-            await db.set(`allocation-${email}`, currentAllocation + allocationAmount);
+            resources.cpu = currentCpu + cpuAmount;
+            resources.ram = currentRam + ramAmount;
+            resources.disk = currentDisk + diskAmount;
+            resources.backup = currentBackup + backupAmount;
+            resources.database = currentDatabase + databaseAmount;
+            resources.allocation = currentAllocation + allocationAmount;
+
+            user.resources = resources;
+
+            await db.set(`user-${email}`, user);
 
             logToDiscord(
                 "add resources",
@@ -287,7 +301,7 @@ router.get('/addresources', ensureAuthenticated, async (req, res) => {
 
 router.get('/setresources', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email, cpu, ram, disk, backup, database, allocation } = req.query;
             if (!email || !cpu || !ram || !disk || !backup || !database || !allocation) return res.redirect('/admin?err=INVALIDPARAMS');
@@ -304,12 +318,19 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
             if (isNaN(cpuAmount) || isNaN(ramAmount) || isNaN(diskAmount) || isNaN(backupAmount) || isNaN(databaseAmount) || isNaN(allocationAmount)) return res.redirect('/admin?err=INVALIDAMOUNT');
 
 			// Update resources
-            await db.set(`cpu-${email}`, cpuAmount);
-            await db.set(`ram-${email}`, ramAmount);
-            await db.set(`disk-${email}`, diskAmount);
-            await db.set(`backup-${email}`, backupAmount);
-            await db.set(`database-${email}`, databaseAmount);
-            await db.set(`database-${email}`, allocationAmount);
+            const user = await db.get(`user-${email}`);
+            const resources = user.resources;
+
+            resources.cpu = cpuAmount;
+            resources.ram = ramAmount;
+            resources.disk = diskAmount;
+            resources.backup = backupAmount;
+            resources.database = databaseAmount;
+            resources.allocation = allocationAmount;
+
+            user.resources = resources;
+
+            await db.set(`user-${email}`, user);
 
             logToDiscord(
                 "set resources",
@@ -330,7 +351,7 @@ router.get('/setresources', ensureAuthenticated, async (req, res) => {
 // Ban & Unban
 router.get('/ban', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email, reason } = req.query;
             if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
@@ -355,7 +376,7 @@ router.get('/ban', ensureAuthenticated, async (req, res) => {
 
 router.get('/unban', ensureAuthenticated, async (req, res) => {
     try {
-        if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+        if (!req.user || !req.user.email) return res.redirect('/login/discord');
         if (await db.get(`admin-${req.user.email}`) == true) {
             const { email } = req.query;
             if (!email) return res.redirect('/admin?err=INVALIDPARAMS');
@@ -382,7 +403,7 @@ router.get('/unban', ensureAuthenticated, async (req, res) => {
 router.post('/admin/settings/joinGuildEnabled', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            if (!req.user || !req.user.email) return res.status(401).send('Unauthorized');
             const { joinGuildEnabled } = req.body;
             const settings = await db.get('settings');
             settings.joinGuildEnabled = joinGuildEnabled;
@@ -398,7 +419,7 @@ router.post('/admin/settings/joinGuildEnabled', ensureAuthenticated, async (req,
 router.post('/admin/settings/joinGuildID', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            if (!req.user || !req.user.email) return res.status(401).send('Unauthorized');
             const { joinGuildID } = req.body;
             const settings = await db.get('settings');
             settings.joinGuildID = `${joinGuildID}`;
@@ -414,7 +435,7 @@ router.post('/admin/settings/joinGuildID', ensureAuthenticated, async (req, res)
 router.post('/admin/settings/maintenanceEnabled', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            if (!req.user || !req.user.email) return res.status(401).send('Unauthorized');
             const { maintenanceEnabled } = req.body;
             const settings = await db.get('settings');
             settings.maintenance = maintenanceEnabled;
@@ -430,7 +451,7 @@ router.post('/admin/settings/maintenanceEnabled', ensureAuthenticated, async (re
 router.post('/admin/settings/dailyCoinsEnabled', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            if (!req.user || !req.user.email) return res.status(401).send('Unauthorized');
             const { dailyCoinsEnabled } = req.body;
             const settings = await db.get('settings');
             settings.dailyCoinsEnabled = dailyCoinsEnabled;
@@ -446,7 +467,7 @@ router.post('/admin/settings/dailyCoinsEnabled', ensureAuthenticated, async (req
 router.post('/admin/settings/dailyCoinsAmount', ensureAuthenticated, async (req, res) => {
     if (await db.get(`admin-${req.user.email}`) == true) {
         try {
-            if (!req.user || !req.user.email || !req.user.id) return res.status(401).send('Unauthorized');
+            if (!req.user || !req.user.email) return res.status(401).send('Unauthorized');
             const { dailyCoinsAmount } = req.body;
             const settings = await db.get('settings');
             settings.dailyCoins = `${dailyCoinsAmount}`;

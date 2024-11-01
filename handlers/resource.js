@@ -110,13 +110,15 @@ const existingResources = async (email) => {
 // Max resources
 const maxResources = async (email) => {
   try {
+    const user = await db.get(`user-${email}`);
+    const resources = user.resources;
     return {
-      "cpu": await db.get(`cpu-${email}`),
-      "ram": await db.get(`ram-${email}`),
-      "disk": await db.get(`disk-${email}`),
-      "database": await db.get(`database-${email}`),
-      "backup": await db.get(`backup-${email}`),
-      "allocation": await db.get(`allocation-${email}`)
+      "cpu": resources.cpu,
+      "ram": resources.ram,
+      "disk": resources.disk,
+      "database": resources.database,
+      "backup": resources.backup,
+      "allocation": resources.allocation
     };
   } catch (error) {
     logError('Failed to fetch max resources.');
@@ -124,52 +126,9 @@ const maxResources = async (email) => {
   }
 };
 
-// Set default resources
-async function ensureResourcesExist(email) {
-  try {
-    const planKey = await getUserPlan(email);
-    const plan = plans[planKey].resources;
-    const resources = await maxResources(email);
-
-    if (!resources.cpu || resources.cpu == 0) {
-        await db.set(`cpu-${email}`, plan.cpu);
-    }
-
-    if (!resources.ram || resources.ram == 0) {
-        await db.set(`ram-${email}`, plan.ram);
-    }
-
-    if (!resources.disk || resources.disk == 0) {
-        await db.set(`disk-${email}`, plan.disk);
-    }
-
-    if (!resources.database || resources.database == 0) {
-      await db.set(`database-${email}`, plan.database);
-    }
-
-    if (!resources.backup || resources.backup == 0) {
-      await db.set(`backup-${email}`, plan.backup);
-    }
-
-    if (!resources.server || resources.server == 0) {
-      await db.set(`server-${email}`, plan.server);
-    }
-
-    if (!resources.allocation || resources.allocation == 0) {
-      await db.set(`allocation-${email}`, plan.allocation);
-    }
-
-    // Might as well add the coins too instead of having 2 separate functions
-    if (!await db.get(`coins-${email}` || 0)) {
-        await db.set(`coins-${email}`, 0.00);
-    }
-  } catch (error) {
-    logError('Error ensuring default resources.', error);
-  }
-};
-
 module.exports = {
     existingResources,
     maxResources,
-    ensureResourcesExist
+    getUserPlan,
+    plans
 }

@@ -7,7 +7,7 @@ const axios = require('axios');
 
 const db = require('../handlers/db');
 const { logError } = require('../handlers/logs');
-const { existingResources, maxResources, ensureResourcesExist } = require('../handlers/resource');
+const { existingResources, maxResources } = require('../handlers/resource');
 const { decrypt } = require('../handlers/aes');
 
 const provider = {
@@ -33,10 +33,13 @@ function ensureAuthenticated(req, res, next) {
 
 async function checkPassword(email) {
   try {
-    let password = await db.get(`password-${email}`);
-    password = decrypt(password) || "Password Not Found";
-    
-    return password;
+    const user = await db.get(`user-${email}`);
+    let password = user.password;
+    if (password === "" || !password) {
+      return "Password Not Found";
+    } else {
+      return password = decrypt(password);
+    }
   } catch (error) {
     logError('Error checking password.', error);
   }
@@ -54,7 +57,7 @@ router.get('/', (req, res) => {
 // Dashboard
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (!req.user || !req.user.email) return res.redirect('/login/discord');
     const response = await axios.get(`${provider.url}/api/application/users?include=servers&filter[email]=${encodeURIComponent(req.user.email)}`, {
       headers: {
         'Authorization': `Bearer ${provider.key}`,
@@ -64,14 +67,12 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
     });
     const servers = response.data.data[0]?.attributes?.relationships?.servers?.data || [];
 
-    // Ensure all resources are set to 0 if they don't exist
-    await ensureResourcesExist(req.user.email);
-
     // Calculate existing and maximum resources
     const existing = await existingResources(req.user.email);
     const max = await maxResources(req.user.email);
 
     const settings = await db.get('settings');
+    const user = await db.get(`user-${req.user.email}`);
     const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
     const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
     const dailyCoins = {
@@ -80,11 +81,12 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
       today,
       enabled: settings.dailyCoinsEnabled
     }
+    console.log(req.user)
     res.render('dashboard', { 
       req, // Request (queries)
       user: req.user, // User info
       name: process.env.APP_NAME, // Dashboard name
-      coins: await db.get(`coins-${req.user.email}`), // User's coins
+      coins: user.coins, // User's coins
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       servers, // Servers the user owns
       existing, // Existing resources
@@ -100,12 +102,13 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
 // Credentials
 router.get('/credentials', ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email || !req.user.id) return res.redirect('/login/discord');
+    if (!req.user || !req.user.email) return res.redirect('/login/discord');
+    const user = await db.get(`user-${req.user.email}`);
     res.render('credentials', { 
       req, // Request (queries)
       user: req.user, // User info
       name: process.env.APP_NAME, // Dashboard name
-      coins: await db.get(`coins-${req.user.email}`), // User's coins
+      coins: user.coins, // User's coins
       admin: await db.get(`admin-${req.user.email}`), // Admin status
       password: await checkPassword(req.user.email) // Account password
     });

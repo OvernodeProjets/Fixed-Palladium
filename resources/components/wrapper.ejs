@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= name %></title>
     <link href="/public/tailwind.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -182,7 +183,11 @@
                 <div>
                   <button type="button" class="transition max-w-xs bg-gray-700/50 flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                     <span class="sr-only">Open user menu</span>
-                    <img class="h-8 w-8 rounded-full" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256"/>
+                    <% if (user.avatar) { %>
+                      <img class="h-8 w-8 rounded-full" src="https://cdn.discordapp.com/avatars/<%= user.altID %>/<%= user.avatar %>.png?size=256"/>
+                    <% } else { %>
+                      <img class="h-8 w-8 rounded-full" src="https://api.dicebear.com/9.x/thumbs/svg?seed=<%= user.username %>"/>
+                    <% } %>                    
                   </button>
                 </div>
               </div>

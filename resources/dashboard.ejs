@@ -138,7 +138,7 @@
         </div>
         <% } %>
 
-        <% if (dailyCoins.lastClaimDate !== dailyCoins.today || !dailyCoins.lastClaimDate && dailyCoins.enabled === true) { %>
+        <% if ((dailyCoins.lastClaimDate !== dailyCoins.today || !dailyCoins.lastClaimDate ) && dailyCoins.enabled === true) { %>
           <div class="bg-gray-700/50 border-l-4 border-yellow-400 rounded-lg text-yellow-100 p-3 relative" role="alert">
             <div class="flex items-start">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400 mr-3 flex-shrink-0">
