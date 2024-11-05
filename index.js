@@ -89,7 +89,11 @@ app.use(passport.session());
 app.use(requestIp.mw());
 
 // Optimization
-app.set('view cache', true);
+if (process.env.APP_MODE == "production") {
+  app.set('view cache', true);
+} else {
+  app.set('view cache', false);
+}
 app.use(minifyHTML({
     override: true,
     exception_url: false,

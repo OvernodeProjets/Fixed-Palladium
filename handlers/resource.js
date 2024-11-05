@@ -79,10 +79,13 @@ try {
 
 async function getUserPlan(email) {
   try {
-    let plan = await db.get(`plan-${email}`);
+    const user = await db.get(`user-${email}`);
+
+    let plan = user.plan;
     if (!plan) {
       plan = `${process.env.DEFAULT_PLAN}`; // Default plan
-      await db.set(`plan-${email}`, plan);
+      user.plan = plan;
+      await db.set(`user-${email}`, user );
     }
     return plan.toUpperCase();
   } catch (error) {

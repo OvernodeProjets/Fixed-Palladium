@@ -104,8 +104,8 @@ try {
 router.get('/store', ensureAuthenticated, async (req, res) => {
 	try {
 	    if (!req.user || !req.user.email) return res.redirect('/login/discord');
-	    const userCurrentPlan = await db.get(`plan-${req.user.email}`);
 		const user = await db.get(`user-${req.user.email}`);
+	    const userCurrentPlan = user.plan;
 	    
 	    const resourcePlans = Object.values(plans.PLAN).map(plan => {
 	        return {
@@ -201,7 +201,7 @@ router.get('/buyplan', ensureAuthenticated, async (req, res) => {
 		const user = await db.get(`user-${req.user.email}`);
 		const resources = user.resources;
         let coins = user.coins;
-        let currentPlanName = await db.get(`plan-${req.user.email}`);
+        let currentPlanName = user.plan
 
         if (currentPlanName == selectedPlanName) return res.redirect('/store?err=ALREADYPLAN');
 
@@ -226,7 +226,7 @@ router.get('/buyplan', ensureAuthenticated, async (req, res) => {
 			resources[resource] = resourceUpdates[resource];
         }
 
-        await db.set(`plan-${req.user.email}`, selectedPlanName);
+		user.plan = selectedPlanName;
 		const finalsCoins = parseInt(coins) - parseInt(planCost);
 		user.coins = finalsCoins;
 
