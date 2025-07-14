@@ -102,6 +102,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (email, done) => {
   try {
     const user = await db.get(`user-${email}`);
+    if (!user) {
+      return done(null, false);
+    }
     done(null, user);
   } catch (err) {
     done(err);
@@ -180,8 +183,15 @@ async function checkAccountLocal(email, username, password) {
         userId = response.data.attributes.id;
         // Set password in the database
         const encryptedPassword = encrypt(password);
-        const planKey = await getUserPlan(email);
-        const plan = plans[planKey].resources;
+        const planKey = await getUserPlan(email) || 'free'; // Default to free plan if undefined
+        const plan = plans[planKey]?.resources || {
+          cpu: 100,
+          ram: 1024,
+          disk: 10240,
+          database: 2,
+          backup: 2,
+          allocation: 2
+        };
 
         const newUser = {
           id: userId,
@@ -335,8 +345,15 @@ async function checkAccount(email, username, id, access_token, avatar) {
         userId = response.data.attributes.id;
         // Set password in the database
         const encryptedPassword = encrypt(password);
-        const planKey = await getUserPlan(email);
-        const plan = plans[planKey].resources;
+        const planKey = await getUserPlan(email) || 'free'; // Default to free plan if undefined
+        const plan = plans[planKey]?.resources || {
+          cpu: 100,
+          ram: 1024,
+          disk: 10240,
+          database: 2,
+          backup: 2,
+          allocation: 2
+        };
 
         const newUser = {
           id: userId,
@@ -387,11 +404,18 @@ async function checkAccount(email, username, id, access_token, avatar) {
     }
 
     // Set userID in the database
-    const user = await db.get(`user-${email}`);
-    const planKey = await getUserPlan(email);
-    const plan = plans[planKey].resources;
+    let user = await db.get(`user-${email}`);
+    const planKey = await getUserPlan(email) || 'free'; // Default to free plan if undefined
+    const plan = plans[planKey]?.resources || {
+      cpu: 100,
+      ram: 1024,
+      disk: 10240,
+      database: 2,
+      backup: 2,
+      allocation: 2
+    };
     if (!user) {
-      const newUser = {
+      user = {
         id: userId,
         altID: id,
         email,
@@ -408,10 +432,9 @@ async function checkAccount(email, username, id, access_token, avatar) {
           allocation: plan.allocation,
         },
       };
-
-      await db.set(`user-${email}`, newUser);
+    } else {
+      user.id = userId;
     }
-    user.id = userId;
     await db.set(`user-${email}`, user);
 
     logToDiscord("login", `${username} logged in to the dashboard!`);
@@ -424,7 +447,7 @@ async function checkAccount(email, username, id, access_token, avatar) {
   }
 }
 
-// Route for password reset (via Pterodactyl API)
+// Route for password reset
 router.get("/reset-password", ensureAuthenticated, async (req, res) => {
   if (!req.user || !req.user.email) return res.redirect("/");
   try {
