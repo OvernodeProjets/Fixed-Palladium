@@ -9,10 +9,10 @@ const fs = require("fs");
 const db = require("../handlers/db");
 const { logError, log, logToDiscord } = require("../handlers/logs");
 
-function ensureAuthenticated(req, res, next) {
+async function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     // Check if the user is banned
-    db.get(`banned-${req.user.email}`)
+    await db.get(`banned-${req.user.email}`)
       .then((reason) => {
         if (reason)
           return res.redirect(

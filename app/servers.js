@@ -32,16 +32,16 @@ const provider = {
   key: process.env.PROVIDER_KEY,
 };
 
-// Decided not to use pterodactyl.* here
-function ensureAuthenticated(req, res, next) {
+async function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     // Check if the user is banned
-    db.get(`banned-${req.user.email}`)
+    await db.get(`banned-${req.user.email}`)
       .then((reason) => {
         if (reason)
           return res.redirect(
             `/?err=BANNED&reason=${encodeURIComponent(reason)}`
           );
+
         return next();
       })
       .catch((err) => {

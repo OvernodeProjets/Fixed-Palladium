@@ -14,10 +14,10 @@ const provider = {
   key: process.env.PROVIDER_KEY,
 };
 
-function ensureAuthenticated(req, res, next) {
+async function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     // Check if the user is banned
-    db.get(`banned-${req.user.email}`)
+    await db.get(`banned-${req.user.email}`)
       .then((reason) => {
         if (reason)
           return res.redirect(
@@ -36,11 +36,16 @@ function ensureAuthenticated(req, res, next) {
   }
 }
 
+async function ensureAdmin(req, res, next) {
+  if (!req.user || !req.user.email) return res.redirect("/");
+  const isAdmin = await db.get(`admin-${req.user.email}`);
+  if (!isAdmin) return res.redirect("/dashboard");
+  next();
+}
+
 // Admin
-router.get("/admin", ensureAuthenticated, async (req, res) => {
+router.get("/admin", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const settings = await db.get("settings");
       const user = await db.get(`user-${req.user.email}`);
 
@@ -52,9 +57,6 @@ router.get("/admin", ensureAuthenticated, async (req, res) => {
         coins: user.coins, // User's coins
         admin: await db.get(`admin-${req.user.email}`), // Admin status
       });
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading admin page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
@@ -62,10 +64,8 @@ router.get("/admin", ensureAuthenticated, async (req, res) => {
 });
 
 // Scan eggs & locations
-router.get("/scaneggs", ensureAuthenticated, async (req, res) => {
+router.get("/scaneggs", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         const response = await axios.get(
           `${provider.url}/api/application/nests/1/eggs?include=nest,variables`,
@@ -131,19 +131,14 @@ router.get("/scaneggs", ensureAuthenticated, async (req, res) => {
         console.error(`Error fetching eggs: ${error}`);
         res.redirect("/admin?err=FETCH_FAILED");
       }
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading scaneggs page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
   }
 });
 
-router.get("/scanlocations", ensureAuthenticated, async (req, res) => {
+router.get("/scanlocations", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         const response = await axios.get(
           `${provider.url}/api/application/locations`,
@@ -186,9 +181,6 @@ router.get("/scanlocations", ensureAuthenticated, async (req, res) => {
         console.error(`Error fetching locations: ${error}`);
         res.redirect("/admin?err=FETCH_FAILED");
       }
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading scanlocations page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
@@ -196,10 +188,8 @@ router.get("/scanlocations", ensureAuthenticated, async (req, res) => {
 });
 
 // Set & Add coins
-router.get("/addcoins", ensureAuthenticated, async (req, res) => {
+router.get("/addcoins", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email, amount } = req.query;
 
       if (!email || !amount) return res.redirect("/admin?err=INVALIDPARAMS");
@@ -217,19 +207,14 @@ router.get("/addcoins", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has add ${amount} coins for ${email} !`);
 
       res.redirect("/admin?success=COMPLETE");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading addcoins page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
   }
 });
 
-router.get("/setcoins", ensureAuthenticated, async (req, res) => {
+router.get("/setcoins", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email, amount } = req.query;
 
       if (!email || !amount) return res.redirect("/admin?err=INVALIDPARAMS");
@@ -247,9 +232,6 @@ router.get("/setcoins", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has set ${amount} coins for ${email} !`);
 
       res.redirect("/admin?success=COMPLETE");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading setcoins page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
@@ -257,10 +239,8 @@ router.get("/setcoins", ensureAuthenticated, async (req, res) => {
 });
 
 // Set & Add resources
-router.get("/addresources", ensureAuthenticated, async (req, res) => {
+router.get("/addresources", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email, cpu, ram, disk, backup, database, allocation } = req.query;
       if (
         !email ||
@@ -322,19 +302,14 @@ router.get("/addresources", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has add resources for ${email} !`);
 
       res.redirect("/admin?success=COMPLETE");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading addresources page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
   }
 });
 
-router.get("/setresources", ensureAuthenticated, async (req, res) => {
+router.get("/setresources", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email, cpu, ram, disk, backup, database, allocation } = req.query;
       if (
         !email ||
@@ -388,9 +363,6 @@ router.get("/setresources", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has set resources for ${email} !`);
 
       res.redirect("/admin?success=COMPLETE");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading setresources page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
@@ -398,10 +370,8 @@ router.get("/setresources", ensureAuthenticated, async (req, res) => {
 });
 
 // Ban & Unban
-router.get("/ban", ensureAuthenticated, async (req, res) => {
+router.get("/ban", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email, reason } = req.query;
       if (!email) return res.redirect("/admin?err=INVALIDPARAMS");
 
@@ -414,19 +384,14 @@ router.get("/ban", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has ban ${email} with reason ${reason} !`);
 
       res.redirect("/admin?success=BANNED");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading ban page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
   }
 });
 
-router.get("/unban", ensureAuthenticated, async (req, res) => {
+router.get("/unban", ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       const { email } = req.query;
       if (!email) return res.redirect("/admin?err=INVALIDPARAMS");
 
@@ -436,9 +401,6 @@ router.get("/unban", ensureAuthenticated, async (req, res) => {
       log(`${req.user.username} has unban ${email} !`);
 
       res.redirect("/admin?success=UNBANNED");
-    } else {
-      res.redirect("/dashboard");
-    }
   } catch (error) {
     logError("Error loading unban page.", error);
     res.redirect("/dashboard?err=INTERNALERROR");
@@ -449,8 +411,8 @@ router.get("/unban", ensureAuthenticated, async (req, res) => {
 router.post(
   "/admin/settings/joinGuildEnabled",
   ensureAuthenticated,
+  ensureAdmin,
   async (req, res) => {
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         if (!req.user || !req.user.email)
           return res.status(401).send("Unauthorized");
@@ -463,15 +425,14 @@ router.post(
         logError("Error updating joinGuildEnabled setting.", error);
         res.status(500).send("Internal Server Error");
       }
-    }
   }
 );
 
 router.post(
   "/admin/settings/joinGuildID",
   ensureAuthenticated,
+  ensureAdmin,
   async (req, res) => {
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         if (!req.user || !req.user.email)
           return res.status(401).send("Unauthorized");
@@ -484,15 +445,14 @@ router.post(
         logError("Error updating joinGuildID setting.", error);
         res.status(500).send("Internal Server Error");
       }
-    }
   }
 );
 
 router.post(
   "/admin/settings/maintenanceEnabled",
   ensureAuthenticated,
+  ensureAdmin,
   async (req, res) => {
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         if (!req.user || !req.user.email)
           return res.status(401).send("Unauthorized");
@@ -505,15 +465,14 @@ router.post(
         logError("Error updating maintenanceEnabled setting.", error);
         res.status(500).send("Internal Server Error");
       }
-    }
   }
 );
 
 router.post(
   "/admin/settings/dailyCoinsEnabled",
   ensureAuthenticated,
+  ensureAdmin,
   async (req, res) => {
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         if (!req.user || !req.user.email)
           return res.status(401).send("Unauthorized");
@@ -526,15 +485,14 @@ router.post(
         logError("Error updating dailyCoinsEnabled setting.", error);
         res.status(500).send("Internal Server Error");
       }
-    }
   }
 );
 
 router.post(
   "/admin/settings/dailyCoinsAmount",
   ensureAuthenticated,
+  ensureAdmin,
   async (req, res) => {
-    if ((await db.get(`admin-${req.user.email}`)) == true) {
       try {
         if (!req.user || !req.user.email)
           return res.status(401).send("Unauthorized");
@@ -547,7 +505,6 @@ router.post(
         logError("Error updating dailyCoinsAmount setting.", error);
         res.status(500).send("Internal Server Error");
       }
-    }
   }
 );
 
