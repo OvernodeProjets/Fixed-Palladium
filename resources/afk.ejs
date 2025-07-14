@@ -6,13 +6,30 @@
         <script>
           let session = 0;
           let afkTime = 0;
+          let retryCount = 0;
+          const MAX_RETRIES = 5;
+          const INITIAL_RETRY_DELAY = 1000;
+          
+          function getRetryDelay() {
+            return Math.min(INITIAL_RETRY_DELAY * Math.pow(2, retryCount), 30000);
+          }
           
           function connect() {
+            if (retryCount >= MAX_RETRIES) {
+              document.getElementById("coinCountdown").innerHTML = "Connection failed. Please refresh the page.";
+              document.getElementById("sessionEarn").innerHTML = "Connection failed";
+              document.getElementById("currentCoins").innerHTML = "Connection failed";
+              return;
+            }
+
             const ws = new WebSocket(`${window.location.href.startsWith("https://") ? "wss" : "ws"}://${window.location.href.replace("http://", "").replace("https://", "").split("/")[0]}/afkwspath`);
+            
             ws.onopen = () => {
               console.log("[WS] Connected to websocket.");
               document.getElementById("coinCountdown").innerHTML = "Connected to websocket.";
+              retryCount = 0; // Reset retry count on successful connection
             };
+            
             ws.onmessage = (msg) => {
               let z = JSON.parse(msg.data);
               if (z.type == "count") {
@@ -29,24 +46,28 @@
                 document.getElementById("currentCoins").innerHTML = `${parseInt("<%= coins %>") + session} coins`;
               }
             };
+            
             ws.onerror = (err) => {
               console.log("[WS] Error connecting to websocket.");
               console.log(err);
-              document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
-              document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
-              document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
-              setTimeout(() => {
-                connect();
-              }, 750);
+              handleReconnect();
             };
+            
             ws.onclose = () => {
-              document.getElementById("coinCountdown").innerHTML = "Reconnecting...";
-              document.getElementById("sessionEarn").innerHTML = `Reconnecting...`;
-              document.getElementById("currentCoins").innerHTML = `Reconnecting...`;
-              setTimeout(() => {
-                connect();
-              }, 750);
+              handleReconnect();
             };
+
+            function handleReconnect() {
+              const delay = getRetryDelay();
+              retryCount++;
+              document.getElementById("coinCountdown").innerHTML = `Reconnecting in ${Math.round(delay/1000)}s... (Attempt ${retryCount}/${MAX_RETRIES})`;
+              document.getElementById("sessionEarn").innerHTML = "Reconnecting...";
+              document.getElementById("currentCoins").innerHTML = "Reconnecting...";
+              
+              if (retryCount < MAX_RETRIES) {
+                setTimeout(connect, delay);
+              }
+            }
           }
           connect();
         </script>

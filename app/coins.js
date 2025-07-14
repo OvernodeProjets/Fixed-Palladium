@@ -82,7 +82,7 @@ router.ws("/afkwspath", async (ws, req) => {
 
 router.get("/afk", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
     const user = await db.get(`user-${req.user.email}`);
     res.render("afk", {
       req, // Request (queries)
@@ -108,7 +108,7 @@ try {
 
 router.get("/store", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
     const user = await db.get(`user-${req.user.email}`);
     const userCurrentPlan = user.plan;
 
@@ -266,7 +266,7 @@ router.get("/buyplan", ensureAuthenticated, async (req, res) => {
 
 router.get("/dailycoins", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
 
     const lastClaimDate = await db.get(`last-claim-${req.user.email}`);
     const today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD

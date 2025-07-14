@@ -494,7 +494,7 @@ router.get("/reset-password", ensureAuthenticated, async (req, res) => {
 
 // Route to remove account
 router.get("/remove-account", ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email) return res.redirect("/login/discord");
+  if (!req.user || !req.user.email) return res.redirect("/");
   try {
     const user = await db.get(`user-${req.user.email}`);
     const userId = user.id;

@@ -1,7 +1,15 @@
 .env
 node_modules/
+
 storage/database.sqlite
-package-lock.json
+storage/sessions.sqlite
+
+database.sqlite-shm
+database.sqlite-wal
+
 storage/logs/errors.log
 storage/logs/services.log
+
 pnpm-lock.yaml
+package-lock.json
+bun.lockb

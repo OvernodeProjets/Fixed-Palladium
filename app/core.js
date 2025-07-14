@@ -63,7 +63,7 @@ router.get("/", (req, res) => {
 // Dashboard
 router.get("/dashboard", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
     const response = await axios.get(
       `${
         provider.url
@@ -116,7 +116,7 @@ router.get("/dashboard", ensureAuthenticated, async (req, res) => {
 // Credentials
 router.get("/credentials", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
     const user = await db.get(`user-${req.user.email}`);
     res.render("credentials", {
       req, // Request (queries)

@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const session = require("express-session");
+const SQLiteStore = require('connect-sqlite3')(session);
 const app = express();
 
 const expressWs = require("express-ws")(app);
@@ -52,6 +53,14 @@ async function autoSet() {
 
 autoSet();
 
+const sessionStore = new SQLiteStore({
+  dir: './storage',
+  db: 'sessions.sqlite',
+  table: 'sessions'
+});
+
+
+
 // Setup ejs as the view engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/resources"));
@@ -77,13 +86,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Setup session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+app.use(session({
+  store: sessionStore,
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  }
+}));
 
 // Initialize passport
 app.use(passport.initialize());

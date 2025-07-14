@@ -71,7 +71,7 @@ let plans = {};
 
 try {
   const filePath = "./storage/plans.json";
-
+  
   if (!fs.existsSync(filePath)) {
     console.log(
       "The plans.json file doesn't exist, created with a default template."

@@ -56,7 +56,7 @@ async function ensureAuthenticated(req, res, next) {
 
 // Delete server
 router.get("/delete", ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email) return res.redirect("/login/discord");
+  if (!req.user || !req.user.email) return res.redirect("/");
   if (!req.query.id) return res.redirect("../dashboard?err=MISSINGPARAMS");
   try {
     const user = await db.get(`user-${req.user.email}`);
@@ -110,7 +110,7 @@ router.get("/delete", ensureAuthenticated, async (req, res) => {
 
 // Create server
 router.get("/create", ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email) return res.redirect("/login/discord");
+  if (!req.user || !req.user.email) return res.redirect("/");
   if (
     !req.query.name ||
     !req.query.location ||
@@ -266,7 +266,7 @@ router.get("/create", ensureAuthenticated, async (req, res) => {
 });
 
 router.get("/create-server", ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email) return res.redirect("/login/discord");
+  if (!req.user || !req.user.email) return res.redirect("/");
   const user = await db.get(`user-${req.user.email}`);
   res.render("create", {
     req, // Requests (queries)
@@ -281,7 +281,7 @@ router.get("/create-server", ensureAuthenticated, async (req, res) => {
 
 // Edit server
 router.get("/edit", ensureAuthenticated, async (req, res) => {
-  if (!req.user || !req.user.email) return res.redirect("/login/discord");
+  if (!req.user || !req.user.email) return res.redirect("/");
   if (
     !req.query.id ||
     !req.query.name ||
@@ -387,7 +387,7 @@ router.get("/edit", ensureAuthenticated, async (req, res) => {
 
 router.get("/edit-server", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.user || !req.user.email) return res.redirect("/login/discord");
+    if (!req.user || !req.user.email) return res.redirect("/");
     if (!req.query.id) return res.redirect("/dashboard");
     const user = await db.get(`user-${req.user.email}`);
     const userId = user.id;

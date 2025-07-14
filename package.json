@@ -10,9 +10,9 @@
     "build": "npx tailwindcss -i ./tailwind.conf -o ./public/tailwind.css --watch"
   },
   "dependencies": {
-    "@keyv/sqlite": "^3.6.7",
-    "@tailwindcss/forms": "^0.5.9",
+    "@tailwindcss/forms": "^0.5.10",
     "axios": "^1.3.4",
+    "sqlite3": "^5.1.7",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.10",
     "express": "^4.18.2",
@@ -20,18 +20,16 @@
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.17.3",
     "express-ws": "^5.0.2",
-    "fs": "^0.0.1-security",
     "ipaddr.js": "^2.2.0",
-    "keyv": "^4.5.4",
     "passport": "^0.6.0",
     "passport-discord": "^0.1.4",
     "passport-local": "^1.0.0",
-    "path": "^0.12.7",
     "request-ip": "^3.3.0",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^3.4.13",
+    "connect-sqlite3": "^0.9.16"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
