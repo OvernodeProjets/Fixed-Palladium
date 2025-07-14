@@ -1,35 +1,35 @@
 {
-    "logging": {
-        "status": true,
-        "webhook": "Your webhook link",
-        "actions": {
-            "user": {
-                "signup": true,
-                "login": true,
-                "reset password": true,
-                "created server": true,
-                "edited server": true,
-                "deleted server": true,
-                "resources purchased": true,
-                "plan purchased": true,
+  "logging": {
+    "status": true,
+    "webhook": "Your webhook link",
+    "actions": {
+      "user": {
+        "signup": true,
+        "login": true,
+        "reset password": true,
+        "created server": true,
+        "edited server": true,
+        "deleted server": true,
+        "resources purchased": true,
+        "plan purchased": true,
 
-                "coupon redeemed": true
-            },
-            "admin": {
-                "scan eggs": true,
-                "scan locations": true,
-                "add coins": true,
-                "set coins": true,
-                "add resources": true,
-                "set resources": true,
-                "ban": true,
-                "unban": true,
+        "coupon redeemed": true
+      },
+      "admin": {
+        "scan eggs": true,
+        "scan locations": true,
+        "add coins": true,
+        "set coins": true,
+        "add resources": true,
+        "set resources": true,
+        "ban": true,
+        "unban": true,
 
-                "set plan": true,
-                "create coupon": true,
-                "revoke coupon": true,
-                "remove account": true
-            }
-        }
+        "set plan": true,
+        "create coupon": true,
+        "revoke coupon": true,
+        "remove account": true
+      }
     }
+  }
 }

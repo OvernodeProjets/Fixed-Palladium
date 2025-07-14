@@ -6,6 +6,7 @@
 # Fixed-Palladium
 
 All features:
+
 - Resource Management (Use it to create servers, etc)
 - Coins (AFK Page earning)
 - Servers (Create, View, Edit servers)
@@ -17,14 +18,15 @@ All features:
 
 <br>
 
-| :exclamation:  This is an extremely early version of Fixed-Palladium and doesn't have all of features we want to add yet                                   |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| :exclamation: This is an extremely early version of Fixed-Palladium and doesn't have all of features we want to add yet |
+| ----------------------------------------------------------------------------------------------------------------------- |
 
 <hr>
 
 # Install Guide
 
 Warning: You need Pterodactyl already setup on a domain for Fixed-Palladium to work
+
 1. Upload the file above onto a Pterodactyl NodeJS server [Download the egg from Parkervcp's GitHub Repository](https://github.com/parkervcp/eggs/blob/master/generic/nodejs/egg-node-js-generic.json)
 2. Unarchive the file and set the server to use NodeJS 16
 3. Configure `.env`, `/storage/eggs.json` & `/storage/plans.json` with the scan or manuel
@@ -39,6 +41,7 @@ Warning: You need Pterodactyl already setup on a domain for Fixed-Palladium to w
 12. Run `systemctl restart nginx` and try open your domain.
 
 # Nginx Proxy Config
+
 ```Nginx
 server {
     listen 80;
@@ -74,8 +77,10 @@ server {
 ```
 
 # Informations / Suggestions
-- We recommend using cloudflare and cloudflare proxy to avoid websocket vulnerabilities. 
+
+- We recommend using cloudflare and cloudflare proxy to avoid websocket vulnerabilities.
 
 # Credit
+
 - [Palladium](https://github.com/PinePlatforms/Palladium)
 - [Palladium, fork by Ghostload74](https://github.com/Ghostload74/Palladium)

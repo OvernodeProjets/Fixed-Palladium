@@ -1,0 +1,15 @@
+{
+  "[ejs]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null,
+    "files.autoSave": "off",
+    "editor.formatOnSaveMode": "none",
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false
+  },
+  "files.associations": {
+    "*.ejs": "html"
+  },
+  "prettier.disableLanguages": ["ejs"],
+  "prettier.requireConfig": true
+}

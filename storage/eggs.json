@@ -10,7 +10,7 @@
       "BUILD_NUMBER": "latest"
     },
     "limitsResources": {
-      "max" : {
+      "max": {
         "cpu": 100,
         "memory": 1024,
         "disk": 1024
